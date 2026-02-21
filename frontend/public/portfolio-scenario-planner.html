@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Scenario Planner — Visualization Migration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --paper: #f7f5f0;
+  --accent: #2d5a7b;
+  --accent-light: #3a7ca5;
+  --highlight: #d4a843;
+  --muted: #6b7280;
+  --border: #d1cdc4;
+  --card-bg: #ffffff;
+  --success: #2d6a4f;
+  --success-light: #d8f3dc;
+  --optional: #7c3aed;
+  --retire: #9ca3af;
+  --simple: #2d6a4f;
+  --medium: #3a7ca5;
+  --complex: #d4a843;
+  --self: #059669;
+  --assisted: #2d5a7b;
+  --contractor: #7c3aed;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+/* ─── HEADER ─── */
+.header {
+  background: var(--ink);
+  color: #fff;
+  padding: 40px 48px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content:'';
+  position:absolute;
+  top:-120px;right:-120px;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,168,67,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.header-badge {
+  display:inline-flex;align-items:center;gap:8px;padding:5px 14px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);
+  border-radius:100px;font-size:0.7rem;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.header-badge::before { content:''; width:6px; height:6px; background:var(--highlight); border-radius:50%; }
+.header h1 {
+  font-family:'DM Serif Display',serif; font-size:clamp(1.6rem,3.5vw,2.4rem);
+  font-weight:400; line-height:1.15; max-width:700px;
+}
+.header h1 em { color:var(--highlight); font-style:italic; }
+.header p { font-size:0.95rem; opacity:0.7; max-width:600px; margin-top:12px; line-height:1.65; }
+
+/* ─── MAIN LAYOUT ─── */
+.container { max-width:1200px; margin:0 auto; padding:40px 48px 80px; }
+
+/* ─── PORTFOLIO TOTAL ─── */
+.portfolio-total {
+  display:flex; align-items:center; gap:24px;
+  margin-bottom:36px; padding:20px 24px;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:8px;
+}
+.portfolio-total-label { font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+.portfolio-total-input {
+  font-family:'DM Serif Display',serif; font-size:1.8rem; color:var(--accent);
+  border:none; background:transparent; width:100px; text-align:center;
+  border-bottom:2px solid var(--border); outline:none; transition:border-color 0.2s;
+}
+.portfolio-total-input:focus { border-color:var(--accent); }
+.portfolio-total-note { font-size:0.82rem; color:var(--muted); flex:1; }
+
+/* ─── TWO COLUMN LAYOUT ─── */
+.planner-grid {
+  display:grid; grid-template-columns:1fr 400px; gap:32px; align-items:start;
+}
+
+/* ─── DISPOSITION PANEL ─── */
+.panel {
+  background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:28px;
+}
+.panel-title {
+  font-family:'DM Serif Display',serif; font-size:1.15rem; margin-bottom:4px;
+}
+.panel-subtitle { font-size:0.85rem; color:var(--muted); margin-bottom:24px; }
+
+/* Stacked bar */
+.stacked-bar-container { margin-bottom:28px; }
+.stacked-bar {
+  display:flex; height:36px; border-radius:6px; overflow:hidden; position:relative;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,0.06);
+}
+.stacked-segment {
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.68rem; font-weight:600; color:#fff; transition:width 0.4s ease;
+  min-width:0; overflow:hidden; white-space:nowrap;
+}
+.stacked-segment.retire { background:var(--retire); }
+.stacked-segment.simple { background:var(--simple); }
+.stacked-segment.medium { background:var(--medium); }
+.stacked-segment.complex { background:var(--complex); }
+
+.stacked-bar-labels {
+  display:flex; margin-top:6px; font-size:0.68rem; color:var(--muted);
+}
+.stacked-bar-label { transition:width 0.4s ease; text-align:center; overflow:hidden; }
+
+/* Slider groups */
+.slider-group { margin-bottom:22px; }
+.slider-header {
+  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
+}
+.slider-label {
+  display:flex; align-items:center; gap:8px; font-size:0.88rem; font-weight:500;
+}
+.slider-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.slider-values {
+  display:flex; gap:12px; align-items:baseline;
+}
+.slider-pct {
+  font-family:'JetBrains Mono',monospace; font-size:0.85rem; font-weight:500; color:var(--accent);
+  min-width:38px; text-align:right;
+}
+.slider-count {
+  font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted);
+  min-width:70px; text-align:right;
+}
+.slider-desc { font-size:0.75rem; color:var(--muted); margin-bottom:8px; line-height:1.4; }
+input[type="range"] {
+  width:100%; -webkit-appearance:none; appearance:none;
+  height:6px; border-radius:3px; outline:none; transition:background 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none; width:20px; height:20px;
+  border-radius:50%; cursor:pointer; border:3px solid var(--card-bg);
+  box-shadow:0 1px 4px rgba(0,0,0,0.2); transition:transform 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform:scale(1.15); }
+#retireSlider { background:linear-gradient(90deg,var(--retire) 0%,#e5e7eb 100%); }
+#retireSlider::-webkit-slider-thumb { background:var(--retire); }
+#simpleSlider { background:linear-gradient(90deg,var(--simple) 0%,#d1fae5 100%); }
+#simpleSlider::-webkit-slider-thumb { background:var(--simple); }
+#mediumSlider { background:linear-gradient(90deg,var(--medium) 0%,#bae6fd 100%); }
+#mediumSlider::-webkit-slider-thumb { background:var(--medium); }
+#complexSlider { background:linear-gradient(90deg,var(--complex) 0%,#fef3c7 100%); }
+#complexSlider::-webkit-slider-thumb { background:var(--complex); }
+
+.slider-remaining {
+  margin-top:8px; padding:10px 14px; border-radius:6px;
+  font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;
+  transition:all 0.3s ease;
+}
+.slider-remaining.ok { background:var(--success-light); color:var(--success); }
+.slider-remaining.warn { background:#fef3c7; color:#d97706; }
+.slider-remaining.error { background:#fee2e2; color:#dc2626; }
+
+/* ─── MIGRATION METHOD ─── */
+.method-section { margin-top:28px; padding-top:24px; border-top:1px solid var(--border); }
+.method-title { font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+
+.method-bar-container { margin-bottom:20px; }
+.method-bar {
+  display:flex; height:24px; border-radius:4px; overflow:hidden;
+}
+.method-segment { display:flex; align-items:center; justify-content:center; font-size:0.62rem; font-weight:600; color:#fff; transition:width 0.4s ease; }
+.method-segment.self-service { background:var(--self); }
+.method-segment.assisted { background:var(--assisted); }
+.method-segment.contractor { background:var(--contractor); }
+
+.method-slider-group { margin-bottom:16px; }
+.method-slider-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+.method-slider-label { display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:500; }
+.method-slider-pct { font-family:'JetBrains Mono',monospace; font-size:0.82rem; font-weight:500; }
+
+#selfSlider { background:linear-gradient(90deg,var(--self) 0%,#d1fae5 100%); }
+#selfSlider::-webkit-slider-thumb { background:var(--self); }
+#assistedSlider { background:linear-gradient(90deg,var(--assisted) 0%,#bfdbfe 100%); }
+#assistedSlider::-webkit-slider-thumb { background:var(--assisted); }
+
+/* ─── OUTPUT PANEL ─── */
+.output-panel {
+  position:sticky; top:24px;
+}
+.output-card {
+  background:var(--ink); color:#fff; border-radius:8px; padding:28px; margin-bottom:16px;
+}
+.output-card-title {
+  font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--highlight); margin-bottom:16px;
+}
+.output-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.output-row:last-child { border-bottom:none; }
+.output-label { font-size:0.82rem; opacity:0.6; }
+.output-value { font-family:'JetBrains Mono',monospace; font-size:0.95rem; font-weight:500; }
+.output-row.highlight-row .output-label { opacity:1; color:var(--highlight); font-weight:600; }
+.output-row.highlight-row .output-value { color:var(--highlight); font-size:1.15rem; }
+
+.output-divider { height:1px; background:rgba(255,255,255,0.1); margin:8px 0; }
+
+/* Effort breakdown mini bar */
+.effort-breakdown { margin-top:16px; }
+.effort-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.effort-bar-label { font-size:0.72rem; opacity:0.6; min-width:90px; }
+.effort-bar-track { flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+.effort-bar-fill { height:100%; border-radius:4px; transition:width 0.4s ease; }
+.effort-bar-value { font-family:'JetBrains Mono',monospace; font-size:0.68rem; min-width:60px; text-align:right; opacity:0.7; }
+
+/* Insight callout */
+.insight {
+  background:var(--card-bg); border:1px solid var(--border); border-radius:8px;
+  padding:20px; margin-bottom:16px;
+}
+.insight-title {
+  font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:10px;
+}
+.insight-text { font-size:0.85rem; color:var(--muted); line-height:1.6; }
+.insight-text strong { color:var(--ink); }
+
+/* Comparison card */
+.compare-card {
+  background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:20px;
+}
+.compare-title {
+  font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:14px;
+}
+.compare-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.04);
+}
+.compare-row:last-child { border-bottom:none; }
+.compare-approach { font-size:0.82rem; font-weight:500; }
+.compare-values { display:flex; gap:16px; }
+.compare-val {
+  font-family:'JetBrains Mono',monospace; font-size:0.78rem; text-align:right;
+}
+.compare-val.cop { color:var(--success); font-weight:600; }
+.compare-val.trad { color:var(--muted); }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px) {
+  .container { padding:24px 20px 60px; }
+  .header { padding:28px 20px; }
+  .planner-grid { grid-template-columns:1fr; }
+  .output-panel { position:static; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+    <a href="/" style="text-decoration:none;color:rgba(255,255,255,0.55);font-size:0.78rem;font-weight:500;padding:5px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:100px;transition:0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.color='rgba(255,255,255,0.55)';this.style.borderColor='rgba(255,255,255,0.1)'">← Back to Hub</a>
+    <div class="header-badge" style="margin-bottom:0">Interactive Tool</div>
+  </div>
+  <h1>Portfolio Scenario Planner — <em>What If?</em></h1>
+  <p>Model different migration scenarios by adjusting dashboard disposition and migration methods. See real-time impact on effort, cost, and timeline.</p>
+</div>
+
+<div class="container">
+
+  <!-- Portfolio Total -->
+  <div class="portfolio-total">
+    <div>
+      <div class="portfolio-total-label">Total Dashboard Portfolio</div>
+      <input type="number" class="portfolio-total-input" id="totalPortfolio" value="3000" min="100" max="10000" step="50" oninput="recalc()">
+    </div>
+    <div class="portfolio-total-note">Adjust based on your actual MicroStrategy inventory. The disposition percentages below will scale to this total. The Portfolio Assessment (Milestone M3) will validate these estimates.</div>
+  </div>
+
+  <div class="planner-grid">
+
+    <!-- ─── LEFT: CONTROLS ─── -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Dashboard Disposition</div>
+        <div class="panel-subtitle">What happens to each dashboard? Drag the sliders to model your scenario.</div>
+
+        <!-- Stacked bar -->
+        <div class="stacked-bar-container">
+          <div class="stacked-bar">
+            <div class="stacked-segment retire" id="barRetire">35%</div>
+            <div class="stacked-segment simple" id="barSimple">33%</div>
+            <div class="stacked-segment medium" id="barMedium">23%</div>
+            <div class="stacked-segment complex" id="barComplex">9%</div>
+          </div>
+        </div>
+
+        <!-- Retire -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label"><div class="slider-dot" style="background:var(--retire)"></div> Retire / Decommission</div>
+            <div class="slider-values">
+              <span class="slider-pct" id="retirePct">35%</span>
+              <span class="slider-count" id="retireCount">1,050</span>
+            </div>
+          </div>
+          <div class="slider-desc">Duplicates, obsolete, unused reports. Immediate license savings — no migration effort.</div>
+          <input type="range" id="retireSlider" min="0" max="70" value="35" oninput="recalc()">
+        </div>
+
+        <!-- Simple -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label"><div class="slider-dot" style="background:var(--simple)"></div> Simple (Republish)</div>
+            <div class="slider-values">
+              <span class="slider-pct" id="simplePct">33%</span>
+              <span class="slider-count" id="simpleCount">990</span>
+            </div>
+          </div>
+          <div class="slider-desc">Basic charts, tabular reports. Ideal CoP self-service candidates — trained agency staff migrate with templates.</div>
+          <input type="range" id="simpleSlider" min="0" max="70" value="33" oninput="recalc()">
+        </div>
+
+        <!-- Medium -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label"><div class="slider-dot" style="background:var(--medium)"></div> Medium (Redesign)</div>
+            <div class="slider-values">
+              <span class="slider-pct" id="mediumPct">23%</span>
+              <span class="slider-count" id="mediumCount">690</span>
+            </div>
+          </div>
+          <div class="slider-desc">Requires rethinking — new data models, filter patterns. Mix of CoP-assisted and Champion-led.</div>
+          <input type="range" id="mediumSlider" min="0" max="50" value="23" oninput="recalc()">
+        </div>
+
+        <!-- Complex -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-label"><div class="slider-dot" style="background:var(--complex)"></div> Complex (Rearchitect)</div>
+            <div class="slider-values">
+              <span class="slider-pct" id="complexPct">9%</span>
+              <span class="slider-count" id="complexCount">270</span>
+            </div>
+          </div>
+          <div class="slider-desc">Embedded analytics, advanced calculations, cross-system integrations. Requires senior expertise (Optional CLIN 1002).</div>
+          <input type="range" id="complexSlider" min="0" max="30" value="9" oninput="recalc()">
+        </div>
+
+        <!-- Remaining indicator -->
+        <div class="slider-remaining ok" id="remainingBar">
+          <span id="remainingLabel">✓ Allocations total 100%</span>
+          <span id="remainingPct" style="font-family:'JetBrains Mono',monospace;font-weight:600">100%</span>
+        </div>
+
+        <!-- Migration Method -->
+        <div class="method-section">
+          <div class="method-title">Migration Method (for non-retired dashboards)</div>
+
+          <div class="method-bar-container">
+            <div class="method-bar">
+              <div class="method-segment self-service" id="methodSelf">50%</div>
+              <div class="method-segment assisted" id="methodAssisted">30%</div>
+              <div class="method-segment contractor" id="methodContractor">20%</div>
+            </div>
+          </div>
+
+          <div class="method-slider-group">
+            <div class="method-slider-header">
+              <div class="method-slider-label"><div class="slider-dot" style="background:var(--self)"></div> Self-Service (CoP-trained staff)</div>
+              <div class="method-slider-pct" id="selfPct" style="color:var(--self)">50%</div>
+            </div>
+            <input type="range" id="selfSlider" min="10" max="80" value="50" oninput="recalcMethod()">
+          </div>
+
+          <div class="method-slider-group">
+            <div class="method-slider-header">
+              <div class="method-slider-label"><div class="slider-dot" style="background:var(--assisted)"></div> CoP-Assisted (Champion coaching)</div>
+              <div class="method-slider-pct" id="assistedPct" style="color:var(--assisted)">30%</div>
+            </div>
+            <input type="range" id="assistedSlider" min="5" max="60" value="30" oninput="recalcMethod()">
+          </div>
+
+          <div class="method-slider-group">
+            <div class="method-slider-header">
+              <div class="method-slider-label"><div class="slider-dot" style="background:var(--contractor)"></div> Contractor-Led (Optional CLINs)</div>
+              <div class="method-slider-pct" id="contractorPct" style="color:var(--contractor)">20%</div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted);font-style:italic;margin-top:4px" id="contractorNote">Auto-calculated from remaining allocation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── RIGHT: OUTPUTS ─── -->
+    <div class="output-panel">
+
+      <!-- Effort Summary -->
+      <div class="output-card">
+        <div class="output-card-title">Estimated Effort</div>
+        <div class="output-row">
+          <span class="output-label">Dashboards to Migrate</span>
+          <span class="output-value" id="outMigrate">1,950</span>
+        </div>
+        <div class="output-row">
+          <span class="output-label">Dashboards Retired</span>
+          <span class="output-value" id="outRetire">1,050</span>
+        </div>
+        <div class="output-divider"></div>
+        <div class="output-row">
+          <span class="output-label">Self-Service Hours</span>
+          <span class="output-value" id="outSelfHrs">—</span>
+        </div>
+        <div class="output-row">
+          <span class="output-label">CoP-Assisted Hours</span>
+          <span class="output-value" id="outAssistedHrs">—</span>
+        </div>
+        <div class="output-row">
+          <span class="output-label">Contractor Hours</span>
+          <span class="output-value" id="outContractorHrs">—</span>
+        </div>
+        <div class="output-divider"></div>
+        <div class="output-row">
+          <span class="output-label">Base CLIN Hours (CoP, Arch, Training)</span>
+          <span class="output-value" id="outBaseHrs">—</span>
+        </div>
+        <div class="output-row highlight-row">
+          <span class="output-label">Total Contractor Effort</span>
+          <span class="output-value" id="outTotalHrs">—</span>
+        </div>
+
+        <!-- Effort breakdown bars -->
+        <div class="effort-breakdown">
+          <div class="effort-bar-row">
+            <span class="effort-bar-label">Self-service</span>
+            <div class="effort-bar-track"><div class="effort-bar-fill" id="effortSelfBar" style="background:var(--self);width:50%"></div></div>
+            <span class="effort-bar-value" id="effortSelfPct">—</span>
+          </div>
+          <div class="effort-bar-row">
+            <span class="effort-bar-label">CoP-assisted</span>
+            <div class="effort-bar-track"><div class="effort-bar-fill" id="effortAssistedBar" style="background:var(--assisted);width:30%"></div></div>
+            <span class="effort-bar-value" id="effortAssistedPct">—</span>
+          </div>
+          <div class="effort-bar-row">
+            <span class="effort-bar-label">Contractor</span>
+            <div class="effort-bar-track"><div class="effort-bar-fill" id="effortContractorBar" style="background:var(--contractor);width:20%"></div></div>
+            <span class="effort-bar-value" id="effortContractorPct">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Insight -->
+      <div class="insight">
+        <div class="insight-title">Scenario Insight</div>
+        <div class="insight-text" id="insightText">Adjust the sliders to see analysis here.</div>
+      </div>
+
+      <!-- Comparison: CoP vs Traditional -->
+      <div class="compare-card">
+        <div class="compare-title">CoP Model vs. Traditional Contractor Migration</div>
+        <div class="compare-row" style="border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:4px">
+          <span class="compare-approach" style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Metric</span>
+          <div class="compare-values">
+            <span class="compare-val cop" style="font-size:0.65rem;letter-spacing:0.04em">CoP MODEL</span>
+            <span class="compare-val trad" style="font-size:0.65rem;letter-spacing:0.04em">TRADITIONAL</span>
+          </div>
+        </div>
+        <div class="compare-row">
+          <span class="compare-approach">Total Contractor Hours</span>
+          <div class="compare-values">
+            <span class="compare-val cop" id="cmpCopHrs">—</span>
+            <span class="compare-val trad" id="cmpTradHrs">—</span>
+          </div>
+        </div>
+        <div class="compare-row">
+          <span class="compare-approach">Agency Capability After</span>
+          <div class="compare-values">
+            <span class="compare-val cop">Self-sufficient</span>
+            <span class="compare-val trad">Dependent</span>
+          </div>
+        </div>
+        <div class="compare-row">
+          <span class="compare-approach">Estimated Savings</span>
+          <div class="compare-values">
+            <span class="compare-val cop" id="cmpSavings">—</span>
+            <span class="compare-val trad">baseline</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function recalc() {
+  const total = parseInt(document.getElementById('totalPortfolio').value) || 3000;
+  let retire = parseInt(document.getElementById('retireSlider').value);
+  let simple = parseInt(document.getElementById('simpleSlider').value);
+  let medium = parseInt(document.getElementById('mediumSlider').value);
+  let complex = parseInt(document.getElementById('complexSlider').value);
+
+  const sum = retire + simple + medium + complex;
+
+  // Update remaining indicator
+  const remaining = 100 - sum;
+  const bar = document.getElementById('remainingBar');
+  const label = document.getElementById('remainingLabel');
+  const pct = document.getElementById('remainingPct');
+
+  if (remaining === 0) {
+    bar.className = 'slider-remaining ok';
+    label.textContent = '✓ Allocations total 100%';
+    pct.textContent = '100%';
+  } else if (remaining > 0) {
+    bar.className = 'slider-remaining warn';
+    label.textContent = `${remaining}% unallocated — adjust sliders`;
+    pct.textContent = sum + '%';
+  } else {
+    bar.className = 'slider-remaining error';
+    label.textContent = `${Math.abs(remaining)}% over — reduce a category`;
+    pct.textContent = sum + '%';
+  }
+
+  // Normalize for calculations if over/under
+  const norm = sum > 0 ? 100 / sum : 1;
+  const rPct = retire * norm;
+  const sPct = simple * norm;
+  const mPct = medium * norm;
+  const cPct = complex * norm;
+
+  // Counts
+  const rCount = Math.round(total * retire / 100);
+  const sCount = Math.round(total * simple / 100);
+  const mCount = Math.round(total * medium / 100);
+  const cCount = Math.round(total * complex / 100);
+  const migrateCount = sCount + mCount + cCount;
+
+  // Update displays
+  document.getElementById('retirePct').textContent = retire + '%';
+  document.getElementById('simplePct').textContent = simple + '%';
+  document.getElementById('mediumPct').textContent = medium + '%';
+  document.getElementById('complexPct').textContent = complex + '%';
+  document.getElementById('retireCount').textContent = rCount.toLocaleString();
+  document.getElementById('simpleCount').textContent = sCount.toLocaleString();
+  document.getElementById('mediumCount').textContent = mCount.toLocaleString();
+  document.getElementById('complexCount').textContent = cCount.toLocaleString();
+
+  // Stacked bar
+  document.getElementById('barRetire').style.width = retire + '%';
+  document.getElementById('barRetire').textContent = retire > 8 ? retire + '%' : '';
+  document.getElementById('barSimple').style.width = simple + '%';
+  document.getElementById('barSimple').textContent = simple > 8 ? simple + '%' : '';
+  document.getElementById('barMedium').style.width = medium + '%';
+  document.getElementById('barMedium').textContent = medium > 8 ? medium + '%' : '';
+  document.getElementById('barComplex').style.width = complex + '%';
+  document.getElementById('barComplex').textContent = complex > 6 ? complex + '%' : '';
+
+  document.getElementById('outMigrate').textContent = migrateCount.toLocaleString();
+  document.getElementById('outRetire').textContent = rCount.toLocaleString();
+
+  recalcMethod();
+}
+
+function recalcMethod() {
+  const total = parseInt(document.getElementById('totalPortfolio').value) || 3000;
+  const retire = parseInt(document.getElementById('retireSlider').value);
+  const simple = parseInt(document.getElementById('simpleSlider').value);
+  const medium = parseInt(document.getElementById('mediumSlider').value);
+  const complex = parseInt(document.getElementById('complexSlider').value);
+
+  const sCount = Math.round(total * simple / 100);
+  const mCount = Math.round(total * medium / 100);
+  const cCount = Math.round(total * complex / 100);
+  const migrateCount = sCount + mCount + cCount;
+
+  let selfPct = parseInt(document.getElementById('selfSlider').value);
+  let assistedPct = parseInt(document.getElementById('assistedSlider').value);
+  let contractorPct = Math.max(0, 100 - selfPct - assistedPct);
+
+  if (contractorPct < 0) {
+    assistedPct = 100 - selfPct;
+    contractorPct = 0;
+    document.getElementById('assistedSlider').value = assistedPct;
+  }
+
+  document.getElementById('selfPct').textContent = selfPct + '%';
+  document.getElementById('assistedPct').textContent = assistedPct + '%';
+  document.getElementById('contractorPct').textContent = contractorPct + '%';
+
+  // Method bar
+  document.getElementById('methodSelf').style.width = selfPct + '%';
+  document.getElementById('methodSelf').textContent = selfPct > 10 ? selfPct + '%' : '';
+  document.getElementById('methodAssisted').style.width = assistedPct + '%';
+  document.getElementById('methodAssisted').textContent = assistedPct > 10 ? assistedPct + '%' : '';
+  document.getElementById('methodContractor').style.width = contractorPct + '%';
+  document.getElementById('methodContractor').textContent = contractorPct > 10 ? contractorPct + '%' : '';
+
+  // Hours calculation
+  // Self-service: agency staff do it, but we still need CoP overhead (training, templates, reviews)
+  // Per-dashboard effort estimates (contractor hours billed)
+  const hrsPerSimple = { self: 2, assisted: 8, contractor: 16 };
+  const hrsPerMedium = { self: 6, assisted: 20, contractor: 32 };
+  const hrsPerComplex = { self: 0, assisted: 24, contractor: 56 }; // Complex rarely self-service
+
+  const selfDash = Math.round(migrateCount * selfPct / 100);
+  const assistedDash = Math.round(migrateCount * assistedPct / 100);
+  const contractorDash = migrateCount - selfDash - assistedDash;
+
+  // Distribute by complexity proportionally within each method
+  const sTot = sCount + mCount + cCount || 1;
+  const sRatio = sCount / sTot;
+  const mRatio = mCount / sTot;
+  const cRatio = cCount / sTot;
+
+  // Self-service hours (our billable: review + QA only)
+  const selfHrs = Math.round(
+    selfDash * sRatio * hrsPerSimple.self +
+    selfDash * mRatio * hrsPerMedium.self +
+    selfDash * cRatio * hrsPerComplex.self
+  );
+
+  // Assisted hours (champion coaching time)
+  const assistedHrs = Math.round(
+    assistedDash * sRatio * hrsPerSimple.assisted +
+    assistedDash * mRatio * hrsPerMedium.assisted +
+    assistedDash * cRatio * hrsPerComplex.assisted
+  );
+
+  // Contractor-led hours (full execution)
+  const contractorHrs = Math.round(
+    contractorDash * sRatio * hrsPerSimple.contractor +
+    contractorDash * mRatio * hrsPerMedium.contractor +
+    contractorDash * cRatio * hrsPerComplex.contractor
+  );
+
+  // Base CLIN hours (CoP management, architecture, training — fixed overhead)
+  const estMonths = Math.max(12, Math.ceil(migrateCount / 120)); // ~120 dashboards/month throughput
+  const baseHrs = Math.round(3.5 * estMonths * 160 * 0.85);
+
+  const totalContractorHrs = baseHrs + selfHrs + assistedHrs + contractorHrs;
+
+  // Traditional comparison: all contractor-led at full effort
+  const tradHrs = Math.round(
+    sCount * hrsPerSimple.contractor +
+    mCount * hrsPerMedium.contractor +
+    cCount * hrsPerComplex.contractor
+  ) + Math.round(baseHrs * 0.3); // Minimal PM overhead in traditional model
+
+  document.getElementById('outSelfHrs').textContent = selfHrs.toLocaleString() + ' hrs';
+  document.getElementById('outAssistedHrs').textContent = assistedHrs.toLocaleString() + ' hrs';
+  document.getElementById('outContractorHrs').textContent = contractorHrs.toLocaleString() + ' hrs';
+  document.getElementById('outBaseHrs').textContent = baseHrs.toLocaleString() + ' hrs';
+  document.getElementById('outTotalHrs').textContent = totalContractorHrs.toLocaleString() + ' hrs';
+
+  // Effort bars
+  const maxHrs = Math.max(selfHrs, assistedHrs, contractorHrs, 1);
+  document.getElementById('effortSelfBar').style.width = (selfHrs / maxHrs * 100) + '%';
+  document.getElementById('effortSelfPct').textContent = selfHrs.toLocaleString() + ' hrs';
+  document.getElementById('effortAssistedBar').style.width = (assistedHrs / maxHrs * 100) + '%';
+  document.getElementById('effortAssistedPct').textContent = assistedHrs.toLocaleString() + ' hrs';
+  document.getElementById('effortContractorBar').style.width = (contractorHrs / maxHrs * 100) + '%';
+  document.getElementById('effortContractorPct').textContent = contractorHrs.toLocaleString() + ' hrs';
+
+  // Comparison
+  const savings = tradHrs - totalContractorHrs;
+  const savingsPct = Math.round(savings / tradHrs * 100);
+  document.getElementById('cmpCopHrs').textContent = totalContractorHrs.toLocaleString();
+  document.getElementById('cmpTradHrs').textContent = tradHrs.toLocaleString();
+  document.getElementById('cmpSavings').textContent = savingsPct > 0 ? savingsPct + '% fewer hrs' : 'comparable';
+
+  // Dynamic insight
+  const insight = document.getElementById('insightText');
+  const retireSavings = Math.round(total * retire / 100);
+  let text = '';
+
+  if (retire >= 30) {
+    text += `<strong>Retiring ${retireSavings.toLocaleString()} dashboards</strong> eliminates ~${retire}% of the portfolio with zero migration effort — that's immediate MicroStrategy license savings. `;
+  }
+
+  if (selfPct >= 50) {
+    text += `At <strong>${selfPct}% self-service</strong>, the CoP is doing the heavy lifting. Your team builds lasting capability while contractor hours stay focused on coaching and complex work. `;
+  } else if (selfPct < 30) {
+    text += `At <strong>${selfPct}% self-service</strong>, there's more contractor reliance. Consider investing more in CoP training — each percentage point shifted to self-service reduces contractor hours significantly at this portfolio scale. `;
+  }
+
+  if (complex >= 15) {
+    text += `With <strong>${complex}% complex dashboards</strong> (${cCount.toLocaleString()}), expect significant Optional CLIN 1002 activation for rearchitecture work. `;
+  }
+
+  if (savingsPct > 30) {
+    text += `This scenario saves an estimated <strong>${savingsPct}%</strong> in contractor hours vs. traditional full-contractor migration — while building agency self-sufficiency.`;
+  } else if (savingsPct > 0) {
+    text += `The CoP model saves <strong>${savingsPct}%</strong> vs. traditional migration, with the added benefit of building in-house capability.`;
+  }
+
+  insight.innerHTML = text || 'Adjust the sliders above to model different scenarios.';
+}
+
+// Initialize
+recalc();
+</script>
+
+</body>
+</html>
