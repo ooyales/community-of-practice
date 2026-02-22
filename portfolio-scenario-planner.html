@@ -697,6 +697,36 @@ function recalcMethod() {
 
 // Initialize
 recalc();
+
+// ═══════════ PLATFORM CONFIG ═══════════
+const PLATFORM_PRESETS = {
+  microstrategy: { legacy:"MicroStrategy", assets:"dashboards", portfolio:"3,000" },
+  cognos: { legacy:"Cognos", assets:"reports", portfolio:"2,500" },
+  bobj: { legacy:"BusinessObjects", assets:"reports", portfolio:"4,000" },
+  obiee: { legacy:"OBIEE", assets:"analyses", portfolio:"1,800" },
+};
+const ACTIVE_PLATFORM = "microstrategy";
+const PLT = PLATFORM_PRESETS[ACTIVE_PLATFORM];
+
+(function applyPlatformConfig() {
+  // Update portfolio total default
+  const totalInput = document.getElementById('totalPortfolio');
+  totalInput.value = parseInt(PLT.portfolio.replace(/,/g, ''));
+
+  // Text replacements
+  function replaceText(root, s, r) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => { if (n.nodeValue.includes(s)) n.nodeValue = n.nodeValue.split(s).join(r); });
+  }
+  replaceText(document.body, "MicroStrategy", PLT.legacy);
+  replaceText(document.body, "dashboards", PLT.assets);
+  replaceText(document.body, "dashboard", PLT.assets.replace(/s$/, ''));
+
+  document.title = "MigrateIQ — Portfolio Scenario Planner (" + PLT.legacy + ")";
+  recalc();
+})();
 </script>
 
 </body>

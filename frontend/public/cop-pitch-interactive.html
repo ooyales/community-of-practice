@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Visualization Migration Strategy — Community of Practice Approach</title>
+<title>MigrateIQ — Migration Strategy</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1441,6 +1441,65 @@
     line-height: 1.7;
   }
 
+  /* ─── PLATFORM SWITCHER ─── */
+  .platform-switcher {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255,255,255,0.06);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .platform-switch-btn {
+    padding: 4px 12px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .platform-switch-btn:hover {
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .platform-switch-btn.active {
+    color: var(--highlight);
+    background: rgba(212,168,67,0.12);
+    font-weight: 600;
+  }
+
+  .platform-switch-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 8px 0 4px;
+  }
+
+  /* Transition effect when switching */
+  .platform-transitioning * {
+    transition: opacity 0.15s ease !important;
+  }
+
+  .platform-flash {
+    animation: platformFlash 0.4s ease;
+  }
+
+  @keyframes platformFlash {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
   /* ─── ANIMATIONS ─── */
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -1480,9 +1539,8 @@
 
 <!-- ═══════════ STICKY NAV ═══════════ -->
 <nav class="nav" id="mainNav">
-  <a href="/" class="nav-brand" style="text-decoration:none;color:#fff">
-    <span style="opacity:0.5;margin-right:4px">←</span> CoP <em>Migration</em> Strategy
-  </a>
+  <a href="/" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.75rem;font-weight:500;margin-right:16px;white-space:nowrap">&larr; Hub</a>
+  <div class="nav-brand">Migrate<em>IQ</em></div>
   <div class="nav-links">
     <a href="#challenge" class="nav-link" data-section="challenge">Challenge</a>
     <a href="#approach" class="nav-link" data-section="approach">Approach</a>
@@ -1493,12 +1551,19 @@
     <a href="#metrics" class="nav-link" data-section="metrics">Metrics</a>
     <a href="#differentiators" class="nav-link" data-section="differentiators">Why Us</a>
   </div>
+  <div class="platform-switcher">
+    <span class="platform-switch-label">Platform</span>
+    <button class="platform-switch-btn active" data-platform="microstrategy">MicroStrategy</button>
+    <button class="platform-switch-btn" data-platform="cognos">Cognos</button>
+    <button class="platform-switch-btn" data-platform="bobj">BOBJ</button>
+    <button class="platform-switch-btn" data-platform="obiee">OBIEE</button>
+  </div>
 </nav>
 
 <!-- ═══════════ HERO ═══════════ -->
 <div class="hero" id="hero">
-  <div class="hero-badge">Strategic Capability Brief</div>
-  <h1>Migrate Smarter,<br>Not Harder — A <em>Community&nbsp;of&nbsp;Practice</em> Approach</h1>
+  <div class="hero-badge">MigrateIQ Solution Brief</div>
+  <h1>Migrate Smarter,<br>Not Harder — The <em>MigrateIQ</em> Approach</h1>
   <p class="hero-sub">Accelerate your MicroStrategy disinvestment through structured enablement, organic adoption, and on-demand professional services — all under a single flexible T&M engagement.</p>
   <div class="hero-stats">
     <div class="hero-stat">
@@ -1537,8 +1602,8 @@
     </div>
     <div class="problem-card solution reveal reveal-delay-3">
       <div class="problem-card-icon">✦</div>
-      <h3>Option C: Community of Practice</h3>
-      <p>A structured enablement model that builds organic capability across the agency — supported by professional services that scale up when departments need hands-on execution. The best of both worlds.</p>
+      <h3>Option C: MigrateIQ</h3>
+      <p>A structured migration solution that builds organic capability across the agency — supported by professional services that scale up when departments need hands-on execution. The best of both worlds.</p>
     </div>
   </div>
 
@@ -2442,7 +2507,7 @@
       <p>Deep, hands-on experience across all three platforms under consideration — Tableau, Qlik, and Power BI / Fabric. We advise the AoA without vendor bias and execute on whichever platform wins, with no ramp-up delay.</p>
     </div>
     <div class="diff-item reveal reveal-delay-2">
-      <h3>The CoP Model is Proven</h3>
+      <h3>The MigrateIQ Model is Proven</h3>
       <p>Communities of Practice accelerate adoption because people learn from peers, not slide decks. We bring the structure, governance, and facilitation expertise to make the CoP self-sustaining beyond our engagement.</p>
     </div>
     <div class="diff-item reveal reveal-delay-3">
@@ -2466,10 +2531,11 @@
 <!-- ═══════════ CTA ═══════════ -->
 <section class="cta-section">
   <div class="section-title reveal">Ready to Migrate Smarter?</div>
-  <p class="reveal reveal-delay-1">Let's discuss how a Community of Practice approach can accelerate your MicroStrategy disinvestment while building lasting analytical capability across the agency.</p>
+  <p class="reveal reveal-delay-1">Let's discuss how MigrateIQ can accelerate your MicroStrategy disinvestment while building lasting analytical capability across the agency.</p>
   <div class="cta-tagline reveal reveal-delay-2">Enablement First. Execution When You Need It.</div>
 </section>
 
+<script src="/migrateiq-config.js"></script>
 <script>
   // ─── STICKY NAV ───
   const nav = document.getElementById('mainNav');
@@ -2596,6 +2662,101 @@
 
   // Initialize estimator
   updateEstimator();
+
+  // ═══════════ PLATFORM LIVE SWITCHER ═══════════
+
+  // PLATFORM_PRESETS loaded from /migrateiq-config.js
+
+  let currentPlatform = "microstrategy";
+
+  // On first load, snapshot all text nodes that contain platform-specific content
+  const ORIGINAL_TEXTS = new Map();
+  const PLATFORM_MARKERS = ["MicroStrategy","Tableau, Qlik","Tableau, Qlik Sense","Power BI/Fabric","Power BI / Fabric","dashboards","dashboard","Fabric workspaces, Qlik Sense mashups, Tableau Prep flows"];
+
+  function snapshotTextNodes() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (PLATFORM_MARKERS.some(m => node.nodeValue.includes(m))) {
+        ORIGINAL_TEXTS.set(node, node.nodeValue);
+      }
+    }
+  }
+
+  function applyPlatform(key) {
+    const PLT = PLATFORM_PRESETS[key];
+    currentPlatform = key;
+
+    // Flash animation
+    document.body.classList.add('platform-transitioning');
+
+    // Restore originals then apply new platform
+    ORIGINAL_TEXTS.forEach((original, node) => {
+      try {
+        let text = original;
+        // Order matters: replace longer strings first
+        text = text.replace(/MicroStrategy Analytics/g, PLT.legacyFull);
+        text = text.replace(/MicroStrategy/g, PLT.legacy);
+        text = text.replace(/Tableau, Qlik Sense, Power BI\/Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, and Power BI\/Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, and Power BI \/ Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, Power BI \/ Fabric/g, PLT.targets);
+        text = text.replace(/Fabric workspaces, Qlik Sense mashups, Tableau Prep flows/g, "advanced platform-specific features");
+        // Asset terms — careful not to break words like "Dashboard Portfolio" label
+        // Only replace lowercase "dashboards"/"dashboard" in flowing text
+        text = text.replace(/\bdashboards\b/g, PLT.assets);
+        text = text.replace(/\bdashboard\b/g, PLT.asset);
+        text = text.replace(/\bDashboard Portfolio\b/g, PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1) + ' Portfolio');
+        text = text.replace(/\bDashboard Migrated\b/g, PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1) + ' Migrated');
+        text = text.replace(/per Dashboard Migrated\b/gi, 'per ' + PLT.asset.charAt(0).toUpperCase() + PLT.asset.slice(1) + ' Migrated');
+        node.nodeValue = text;
+      } catch(e) { /* node may have been removed by DOM changes */ }
+    });
+
+    // Update platform tags in footer
+    const platformTags = document.querySelectorAll('.platform-tag');
+    if (platformTags.length >= 4) {
+      platformTags[0].textContent = PLT.legacy + " (Legacy)";
+      platformTags[1].textContent = PLT.targetTags[0];
+      platformTags[2].textContent = PLT.targetTags[1];
+      platformTags[3].textContent = PLT.targetTags[2];
+    }
+
+    // Update hero stat value for portfolio size
+    const heroStatValues = document.querySelectorAll('.hero-stat-value');
+    if (heroStatValues.length > 0) {
+      heroStatValues[0].textContent = PLT.portfolio;
+    }
+
+    // Update switcher button states
+    document.querySelectorAll('.platform-switch-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.platform === key);
+    });
+
+    // Update title
+    document.title = "MigrateIQ \u2014 " + PLT.legacy + " Migration Strategy";
+
+    // Flash affected elements
+    setTimeout(() => {
+      document.body.classList.remove('platform-transitioning');
+      // Add flash to visible sections
+      document.querySelectorAll('.hero, .problem-section, .clin-section, [id="milestones"], [id="metrics"], .cta-section').forEach(el => {
+        el.classList.add('platform-flash');
+        setTimeout(() => el.classList.remove('platform-flash'), 500);
+      });
+    }, 50);
+  }
+
+  // Initialize: snapshot originals, then bind switcher buttons
+  snapshotTextNodes();
+
+  document.querySelectorAll('.platform-switch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.platform !== currentPlatform) {
+        applyPlatform(btn.dataset.platform);
+      }
+    });
+  });
 </script>
 
 </body>

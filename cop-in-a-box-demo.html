@@ -233,5 +233,56 @@ body{font-family:'DM Sans',sans-serif;background:#eceae5;color:var(--ink);line-h
     </div>
   </div>
 </div>
+
+<script>
+// ═══════════ PLATFORM CONFIG ═══════════
+const PLATFORM_PRESETS = {
+  microstrategy: { legacy:"MicroStrategy", assets:"dashboards", asset:"dashboard", portfolio:"1,950" },
+  cognos: { legacy:"Cognos", assets:"reports", asset:"report", portfolio:"1,625" },
+  bobj: { legacy:"BusinessObjects", assets:"reports", asset:"report", portfolio:"2,600" },
+  obiee: { legacy:"OBIEE", assets:"analyses", asset:"analysis", portfolio:"1,170" },
+};
+const ACTIVE_PLATFORM = "microstrategy";
+const PLT = PLATFORM_PRESETS[ACTIVE_PLATFORM];
+
+(function applyPlatformConfig() {
+  // Selective replacements — only data-context references, not UI chrome
+  // "Dashboards Migrated" stat label
+  const statLabels = document.querySelectorAll('.stat-card-label');
+  statLabels.forEach(el => {
+    if (el.textContent.includes('Dashboards Migrated'))
+      el.textContent = PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1) + ' Migrated';
+    if (el.textContent.includes('Avg. Migration Time'))
+      el.textContent = 'Avg. Migration Time';
+  });
+
+  // "per dashboard" stat sub
+  const statSubs = document.querySelectorAll('.stat-card-sub');
+  statSubs.forEach(el => {
+    el.innerHTML = el.innerHTML.replace(/per dashboard/g, 'per ' + PLT.asset);
+  });
+
+  // Sidebar "All Dashboards"
+  const sidebarItems = document.querySelectorAll('.sidebar-item');
+  sidebarItems.forEach(el => {
+    if (el.textContent.includes('All Dashboards'))
+      el.innerHTML = el.innerHTML.replace('All Dashboards', 'All ' + PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1));
+  });
+
+  // Activity feed: "Dashboard Showcase" stays as UI name, but migration references adapt
+  const activityTexts = document.querySelectorAll('.activity-text');
+  activityTexts.forEach(el => {
+    el.innerHTML = el.innerHTML.replace(/completed migration of/g, 'completed migration of');
+  });
+
+  // Demo banner
+  const banner = document.querySelector('.demo-banner');
+  if (banner) {
+    banner.textContent = '✦ DEMO — MigrateIQ CoP Portal prototype for ' + PLT.legacy + ' migration';
+  }
+
+  document.title = 'MigrateIQ — Analytics CoP Portal (' + PLT.legacy + ')';
+})();
+</script>
 </body>
 </html>

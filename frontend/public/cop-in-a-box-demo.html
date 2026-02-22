@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analytics Community of Practice — Portal</title>
+<title>MigrateIQ — Solution Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#1a1a2e;--paper:#f7f5f0;--accent:#2d5a7b;--accent-light:#3a7ca5;--highlight:#d4a843;--muted:#6b7280;--border:#d1cdc4;--card-bg:#fff;--success:#2d6a4f;--success-light:#d8f3dc;--optional:#7c3aed}
@@ -97,10 +97,12 @@ body{font-family:'DM Sans',sans-serif;background:#eceae5;color:var(--ink);line-h
 </style>
 </head>
 <body>
-<div class="demo-banner">✦ DEMO — This is a prototype of the CoP Portal that would be deployed for your agency</div>
+<div class="demo-banner">✦ DEMO — MigrateIQ Solution Portal prototype</div>
 <div class="topbar">
-  <a href="/" style="text-decoration:none;color:rgba(255,255,255,0.55);font-size:0.78rem;font-weight:500;padding:6px 14px;border-radius:6px;transition:0.2s;margin-right:8px" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='rgba(255,255,255,0.55)';this.style.background='transparent'">← Hub</a>
-  <div class="topbar-brand"><div class="topbar-logo">📊</div><div class="topbar-title">Analytics <em>CoP</em></div></div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/" style="text-decoration:none;color:rgba(255,255,255,0.55);font-size:0.78rem;font-weight:500;padding:6px 12px;border-radius:6px;transition:0.2s" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='rgba(255,255,255,0.55)';this.style.background='transparent'">← Hub</a>
+    <div class="topbar-brand"><div class="topbar-logo">📊</div><div class="topbar-title">Migrate<em>IQ</em></div></div>
+  </div>
   <div class="topbar-nav">
     <a class="topbar-link active">Dashboard</a><a class="topbar-link">Knowledge Base</a><a class="topbar-link">Showcase</a><a class="topbar-link">Office Hours</a><a class="topbar-link">Training</a>
   </div>
@@ -144,7 +146,7 @@ body{font-family:'DM Sans',sans-serif;background:#eceae5;color:var(--ink);line-h
   </div>
 
   <div class="main">
-    <div class="page-header"><h1>CoP Dashboard</h1><p>Migration progress, community engagement, and upcoming events at a glance.</p></div>
+    <div class="page-header"><h1>MigrateIQ Dashboard</h1><p>Migration progress, community engagement, and upcoming events at a glance.</p></div>
 
     <div class="stats-row">
       <div class="stat-card">
@@ -234,5 +236,38 @@ body{font-family:'DM Sans',sans-serif;background:#eceae5;color:var(--ink);line-h
     </div>
   </div>
 </div>
+
+<script src="/migrateiq-config.js"></script>
+<script>
+(function applyPlatformConfig() {
+  // "Dashboards Migrated" stat label
+  const statLabels = document.querySelectorAll('.stat-card-label');
+  statLabels.forEach(el => {
+    if (el.textContent.includes('Dashboards Migrated'))
+      el.textContent = P.assets.charAt(0).toUpperCase() + P.assets.slice(1) + ' Migrated';
+  });
+
+  // "per dashboard" stat sub
+  const statSubs = document.querySelectorAll('.stat-card-sub');
+  statSubs.forEach(el => {
+    el.innerHTML = el.innerHTML.replace(/per dashboard/g, 'per ' + P.asset);
+  });
+
+  // Sidebar "All Dashboards"
+  const sidebarItems = document.querySelectorAll('.sidebar-item');
+  sidebarItems.forEach(el => {
+    if (el.textContent.includes('All Dashboards'))
+      el.innerHTML = el.innerHTML.replace('All Dashboards', 'All ' + P.assets.charAt(0).toUpperCase() + P.assets.slice(1));
+  });
+
+  // Demo banner
+  const banner = document.querySelector('.demo-banner');
+  if (banner) {
+    banner.textContent = '\u2726 DEMO \u2014 MigrateIQ Solution Portal prototype for ' + P.legacy + ' migration';
+  }
+
+  document.title = 'MigrateIQ \u2014 Solution Portal (' + P.legacy + ')';
+})();
+</script>
 </body>
 </html>

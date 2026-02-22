@@ -1,0 +1,536 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  MigrateIQ — Platform Configuration                        ║
+  ║                                                             ║
+  ║  Change the LEGACY_PLATFORM below to generate materials     ║
+  ║  for any source platform. Everything else adapts.           ║
+  ╚══════════════════════════════════════════════════════════════╝
+
+  USAGE:
+    1. Open this file in a text editor
+    2. Find the PLATFORM_CONFIG block below (search for "PLATFORM_CONFIG")
+    3. Uncomment ONE preset, or fill in custom values
+    4. Save and open in a browser — all references update automatically
+
+  AVAILABLE PRESETS:
+    - MicroStrategy
+    - Cognos (IBM Cognos Analytics)
+    - BusinessObjects (SAP BusinessObjects)
+    - OBIEE (Oracle BI Enterprise Edition)
+    - Custom (fill in your own)
+-->
+<script>
+// ═══════════ PLATFORM_CONFIG ═══════════
+// Uncomment ONE block below, or create your own custom config.
+
+// ── MicroStrategy (default) ──
+const PLATFORM_CONFIG = {
+  legacy: "MicroStrategy",
+  legacyFull: "MicroStrategy Analytics",
+  legacyShort: "MicroStrategy",
+  disinvestReason: "platform disinvestment and license cost reduction",
+  typicalPortfolio: "3,000",
+  assetTerm: "dashboards",            // or "reports", "workbooks", etc.
+  assetTermSingular: "dashboard",
+  complexFeatures: "MicroStrategy dossiers, Visual Insight dashboards, distribution services, and Intelligent Cube dependencies",
+  targetPlatforms: "Tableau, Qlik Sense, Power BI/Fabric",
+  agencyContext: "federal agencies",
+};
+
+// ── IBM Cognos Analytics ──
+// const PLATFORM_CONFIG = {
+//   legacy: "Cognos",
+//   legacyFull: "IBM Cognos Analytics",
+//   legacyShort: "Cognos",
+//   disinvestReason: "IBM license consolidation and platform modernization",
+//   typicalPortfolio: "2,500",
+//   assetTerm: "reports",
+//   assetTermSingular: "report",
+//   complexFeatures: "Cognos Framework Manager models, Report Studio burst reports, Analysis Studio cubes, and TM1 integrations",
+//   targetPlatforms: "Tableau, Power BI/Fabric, Qlik Sense",
+//   agencyContext: "federal agencies",
+// };
+
+// ── SAP BusinessObjects ──
+// const PLATFORM_CONFIG = {
+//   legacy: "BusinessObjects",
+//   legacyFull: "SAP BusinessObjects BI",
+//   legacyShort: "BOBJ",
+//   disinvestReason: "SAP BI platform sunset and enterprise modernization",
+//   typicalPortfolio: "4,000",
+//   assetTerm: "reports",
+//   assetTermSingular: "report",
+//   complexFeatures: "Web Intelligence documents, Crystal Reports, universe semantic layers, and scheduled publication jobs",
+//   targetPlatforms: "Power BI/Fabric, Tableau, Qlik Sense",
+//   agencyContext: "federal agencies and defense organizations",
+// };
+
+// ── Oracle OBIEE ──
+// const PLATFORM_CONFIG = {
+//   legacy: "OBIEE",
+//   legacyFull: "Oracle BI Enterprise Edition",
+//   legacyShort: "OBIEE",
+//   disinvestReason: "Oracle license rationalization and cloud migration",
+//   typicalPortfolio: "1,800",
+//   assetTerm: "analyses",
+//   assetTermSingular: "analysis",
+//   complexFeatures: "OBIEE RPD metadata models, BI Publisher templates, Essbase cube dependencies, and Oracle Data Visualization projects",
+//   targetPlatforms: "Power BI/Fabric, Tableau, Qlik Sense",
+//   agencyContext: "federal agencies",
+// };
+
+// ═══════════ END CONFIG ═══════════
+</script>
+<script>
+// Make config accessible globally and create shorthand refs
+const P = PLATFORM_CONFIG;
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MigrateIQ — Visualization Migration Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --paper: #f7f5f0;
+  --accent: #2d5a7b;
+  --accent-light: #3a7ca5;
+  --highlight: #d4a843;
+  --highlight-soft: #f0e4c4;
+  --muted: #6b7280;
+  --border: #d1cdc4;
+  --card-bg: #ffffff;
+  --success: #2d6a4f;
+  --success-light: #d8f3dc;
+  --optional: #7c3aed;
+  --optional-light: #ede9fe;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+.config-banner {
+  background: linear-gradient(90deg, var(--optional), #9333ea);
+  color: #fff;
+  text-align: center;
+  padding: 8px 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.config-banner:hover { opacity:0.9; }
+
+/* Minimal reset for demo purposes - in production, include the full pitch CSS */
+.demo-section {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 40px;
+}
+.demo-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.demo-sub {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+
+/* Config panel */
+.config-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  background: var(--ink);
+  color: #fff;
+}
+.config-panel.open { max-height: 500px; }
+.config-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.config-field label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--highlight);
+  margin-bottom: 4px;
+}
+.config-field input, .config-field select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  border-radius: 4px;
+  outline: none;
+}
+.config-field input:focus, .config-field select:focus {
+  border-color: var(--highlight);
+}
+.config-apply {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding-top: 8px;
+}
+.config-apply button {
+  background: var(--highlight);
+  color: var(--ink);
+  border: none;
+  padding: 8px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.config-apply button:hover { opacity: 0.85; }
+
+/* Preset buttons */
+.preset-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.preset-btn {
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.preset-btn:hover, .preset-btn.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-color: var(--highlight);
+}
+
+/* Template content cards */
+.template-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.template-card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+.template-content {
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.platform-ref {
+  background: rgba(124,58,237,0.08);
+  color: var(--optional);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+}
+
+/* Example sections showing how template vars appear */
+.example-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.section-label-sm {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="config-banner" onclick="toggleConfig()">
+  ▲ PLATFORM CONFIGURATION — Click to customize legacy platform ▼
+</div>
+
+<div class="config-panel" id="configPanel">
+  <div class="config-inner">
+    <div class="preset-row">
+      <button class="preset-btn active" onclick="applyPreset('microstrategy')">MicroStrategy</button>
+      <button class="preset-btn" onclick="applyPreset('cognos')">IBM Cognos</button>
+      <button class="preset-btn" onclick="applyPreset('bobj')">SAP BusinessObjects</button>
+      <button class="preset-btn" onclick="applyPreset('obiee')">Oracle OBIEE</button>
+    </div>
+    <div class="config-field">
+      <label>Legacy Platform Name</label>
+      <input id="cfgLegacy" value="">
+    </div>
+    <div class="config-field">
+      <label>Full Platform Name</label>
+      <input id="cfgLegacyFull" value="">
+    </div>
+    <div class="config-field">
+      <label>Short Name</label>
+      <input id="cfgLegacyShort" value="">
+    </div>
+    <div class="config-field">
+      <label>Disinvestment Reason</label>
+      <input id="cfgReason" value="">
+    </div>
+    <div class="config-field">
+      <label>Typical Portfolio Size</label>
+      <input id="cfgPortfolio" value="">
+    </div>
+    <div class="config-field">
+      <label>Asset Term (plural)</label>
+      <input id="cfgAsset" value="">
+    </div>
+    <div class="config-field">
+      <label>Complex Features</label>
+      <input id="cfgComplex" value="" style="grid-column: span 2">
+    </div>
+    <div class="config-field">
+      <label>Target Platforms</label>
+      <input id="cfgTargets" value="">
+    </div>
+    <div class="config-apply">
+      <button onclick="applyConfig()">Apply Configuration &amp; Refresh All Materials</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-section">
+  <div class="demo-title">MigrateIQ — Platform Configuration Demo</div>
+  <div class="demo-sub">This page demonstrates how all pitch materials dynamically adapt when you change the legacy platform. Click the purple bar above to open the configurator, select a preset or enter custom values, and watch every reference update.</div>
+
+  <!-- Hero Section Preview -->
+  <div class="template-card">
+    <div class="section-label-sm">Hero Section</div>
+    <div class="template-card-title" id="heroTitle">Migrate Smarter, Not Harder</div>
+    <div class="template-content">
+      <p id="heroSub" style="font-size:1rem;color:var(--accent);margin-bottom:12px"></p>
+      <p id="heroDesc"></p>
+    </div>
+  </div>
+
+  <!-- Challenge Section Preview -->
+  <div class="template-card">
+    <div class="section-label-sm">The Challenge</div>
+    <div class="template-content" id="challengeText"></div>
+  </div>
+
+  <!-- Portfolio Breakdown Preview -->
+  <div class="template-card">
+    <div class="section-label-sm">Portfolio Breakdown</div>
+    <div class="template-content" id="portfolioText"></div>
+    <div style="display:flex;height:28px;border-radius:4px;overflow:hidden;margin-top:12px">
+      <div style="width:35%;background:var(--muted);opacity:0.5;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:600;color:#fff" id="barRetire"></div>
+      <div style="width:33%;background:var(--success);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:600;color:#fff" id="barSimple"></div>
+      <div style="width:23%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:600;color:#fff">Medium</div>
+      <div style="width:9%;background:var(--highlight);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:600;color:var(--ink)">Complex</div>
+    </div>
+  </div>
+
+  <!-- Milestones Preview -->
+  <div class="example-grid">
+    <div class="template-card">
+      <div class="section-label-sm">Milestone M3</div>
+      <div class="template-card-title">Portfolio Assessment &amp; Roadmap</div>
+      <div class="template-content" id="m3Text"></div>
+    </div>
+    <div class="template-card">
+      <div class="section-label-sm">Milestone M7</div>
+      <div class="template-card-title">Decommission &amp; Transition</div>
+      <div class="template-content" id="m7Text"></div>
+    </div>
+  </div>
+
+  <!-- CLIN Preview -->
+  <div class="template-card">
+    <div class="section-label-sm">CLIN 0002 Description</div>
+    <div class="template-card-title">AoA &amp; Migration Architecture</div>
+    <div class="template-content" id="clinText"></div>
+  </div>
+
+  <!-- Complex Tier Preview -->
+  <div class="template-card">
+    <div class="section-label-sm">Complex Tier Description</div>
+    <div class="template-content" id="complexText"></div>
+  </div>
+
+  <!-- CTA Preview -->
+  <div class="template-card" style="background:var(--ink);color:#fff">
+    <div class="section-label-sm" style="color:var(--highlight)">Call to Action</div>
+    <div class="template-content" id="ctaText" style="color:rgba(255,255,255,0.8)"></div>
+  </div>
+
+  <div style="margin-top:32px;padding:20px;border-left:3px solid var(--highlight);background:rgba(212,168,67,0.06)">
+    <div style="font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:8px;color:var(--highlight)">How This Works in Practice</div>
+    <div style="font-size:0.88rem;color:var(--muted);line-height:1.7">
+      Every <span class="platform-ref">highlighted reference</span> in the materials above is driven by the configuration panel. In the production files (pitch deck, one-pager, CoP portal, scenario planner), these are implemented as JavaScript template variables that read from the <code>PLATFORM_CONFIG</code> object at the top of each file. To generate materials for a different customer, you change one config block — not hundreds of text references.<br><br>
+      <strong>For the Word doc and PDF:</strong> The generation scripts accept a <code>--platform</code> flag (e.g., <code>python gen_onepager.py --platform cognos</code>) that swaps all references at build time.
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = {
+  microstrategy: {
+    legacy: "MicroStrategy",
+    legacyFull: "MicroStrategy Analytics",
+    legacyShort: "MicroStrategy",
+    disinvestReason: "platform disinvestment and license cost reduction",
+    typicalPortfolio: "3,000",
+    assetTerm: "dashboards",
+    assetTermSingular: "dashboard",
+    complexFeatures: "MicroStrategy dossiers, Visual Insight dashboards, distribution services, and Intelligent Cube dependencies",
+    targetPlatforms: "Tableau, Qlik Sense, Power BI/Fabric",
+  },
+  cognos: {
+    legacy: "Cognos",
+    legacyFull: "IBM Cognos Analytics",
+    legacyShort: "Cognos",
+    disinvestReason: "IBM license consolidation and platform modernization",
+    typicalPortfolio: "2,500",
+    assetTerm: "reports",
+    assetTermSingular: "report",
+    complexFeatures: "Cognos Framework Manager models, Report Studio burst reports, Analysis Studio cubes, and TM1 integrations",
+    targetPlatforms: "Tableau, Power BI/Fabric, Qlik Sense",
+  },
+  bobj: {
+    legacy: "BusinessObjects",
+    legacyFull: "SAP BusinessObjects BI",
+    legacyShort: "BOBJ",
+    disinvestReason: "SAP BI platform sunset and enterprise modernization",
+    typicalPortfolio: "4,000",
+    assetTerm: "reports",
+    assetTermSingular: "report",
+    complexFeatures: "Web Intelligence documents, Crystal Reports, universe semantic layers, and scheduled publication jobs",
+    targetPlatforms: "Power BI/Fabric, Tableau, Qlik Sense",
+  },
+  obiee: {
+    legacy: "OBIEE",
+    legacyFull: "Oracle BI Enterprise Edition",
+    legacyShort: "OBIEE",
+    disinvestReason: "Oracle license rationalization and cloud migration",
+    typicalPortfolio: "1,800",
+    assetTerm: "analyses",
+    assetTermSingular: "analysis",
+    complexFeatures: "OBIEE RPD metadata models, BI Publisher templates, Essbase cube dependencies, and Oracle Data Visualization projects",
+    targetPlatforms: "Power BI/Fabric, Tableau, Qlik Sense",
+  },
+};
+
+let currentConfig = { ...PRESETS.microstrategy };
+
+function toggleConfig() {
+  document.getElementById('configPanel').classList.toggle('open');
+}
+
+function applyPreset(key) {
+  currentConfig = { ...PRESETS[key] };
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  populateFields();
+  renderAll();
+}
+
+function populateFields() {
+  document.getElementById('cfgLegacy').value = currentConfig.legacy;
+  document.getElementById('cfgLegacyFull').value = currentConfig.legacyFull;
+  document.getElementById('cfgLegacyShort').value = currentConfig.legacyShort;
+  document.getElementById('cfgReason').value = currentConfig.disinvestReason;
+  document.getElementById('cfgPortfolio').value = currentConfig.typicalPortfolio;
+  document.getElementById('cfgAsset').value = currentConfig.assetTerm;
+  document.getElementById('cfgComplex').value = currentConfig.complexFeatures;
+  document.getElementById('cfgTargets').value = currentConfig.targetPlatforms;
+}
+
+function applyConfig() {
+  currentConfig.legacy = document.getElementById('cfgLegacy').value;
+  currentConfig.legacyFull = document.getElementById('cfgLegacyFull').value;
+  currentConfig.legacyShort = document.getElementById('cfgLegacyShort').value;
+  currentConfig.disinvestReason = document.getElementById('cfgReason').value;
+  currentConfig.typicalPortfolio = document.getElementById('cfgPortfolio').value;
+  currentConfig.assetTerm = document.getElementById('cfgAsset').value;
+  currentConfig.complexFeatures = document.getElementById('cfgComplex').value;
+  currentConfig.targetPlatforms = document.getElementById('cfgTargets').value;
+  renderAll();
+}
+
+function r(template) {
+  // Replace template tokens with config values
+  return template
+    .replace(/\{legacy\}/g, currentConfig.legacy)
+    .replace(/\{legacyFull\}/g, currentConfig.legacyFull)
+    .replace(/\{legacyShort\}/g, currentConfig.legacyShort)
+    .replace(/\{reason\}/g, currentConfig.disinvestReason)
+    .replace(/\{portfolio\}/g, currentConfig.typicalPortfolio)
+    .replace(/\{assets\}/g, currentConfig.assetTerm)
+    .replace(/\{asset\}/g, currentConfig.assetTermSingular || currentConfig.assetTerm.replace(/s$/, ''))
+    .replace(/\{complex\}/g, currentConfig.complexFeatures)
+    .replace(/\{targets\}/g, currentConfig.targetPlatforms);
+}
+
+function h(template) {
+  // Same as r() but highlights the substituted values
+  return template
+    .replace(/\{legacy\}/g, `<span class="platform-ref">${currentConfig.legacy}</span>`)
+    .replace(/\{legacyFull\}/g, `<span class="platform-ref">${currentConfig.legacyFull}</span>`)
+    .replace(/\{legacyShort\}/g, `<span class="platform-ref">${currentConfig.legacyShort}</span>`)
+    .replace(/\{reason\}/g, `<span class="platform-ref">${currentConfig.disinvestReason}</span>`)
+    .replace(/\{portfolio\}/g, `<span class="platform-ref">${currentConfig.typicalPortfolio}</span>`)
+    .replace(/\{assets\}/g, `<span class="platform-ref">${currentConfig.assetTerm}</span>`)
+    .replace(/\{asset\}/g, `<span class="platform-ref">${currentConfig.assetTermSingular || currentConfig.assetTerm.replace(/s$/, '')}</span>`)
+    .replace(/\{complex\}/g, `<span class="platform-ref">${currentConfig.complexFeatures}</span>`)
+    .replace(/\{targets\}/g, `<span class="platform-ref">${currentConfig.targetPlatforms}</span>`);
+}
+
+function renderAll() {
+  document.getElementById('heroSub').innerHTML = h("Community of Practice Approach to {legacyFull} Migration");
+  document.getElementById('heroDesc').innerHTML = h("A phased, milestone-gated migration from {legacy} to {targets} — driven by agency enablement, not contractor dependency.");
+
+  document.getElementById('challengeText').innerHTML = h("Your agency has {portfolio} {assets} built on {legacyFull}. The platform is being disinvested due to {reason}. The traditional approach — hiring a contractor team to rewrite every {asset} — costs millions, takes years, and leaves the agency just as dependent as before. On a different platform.");
+
+  document.getElementById('portfolioText').innerHTML = h("{portfolio} {assets} on {legacy} — Estimated Breakdown (validated during Portfolio Assessment, Milestone M3)");
+  document.getElementById('barRetire').textContent = `~35% Retire`;
+  document.getElementById('barSimple').textContent = `~33% Simple`;
+
+  document.getElementById('m3Text').innerHTML = h("Full {legacy} {asset} inventory cataloged ({portfolio} {assets}). Each {asset} classified: Simple / Medium / Complex / Retire. Estimated ~35% of {assets} recommended for retirement. Prioritized migration roadmap with department sequencing.");
+
+  document.getElementById('m7Text').innerHTML = h("100% of {portfolio} {assets} resolved: migrated, retired, or formally deferred. {legacyFull} environment decommission-ready. CoP transitioned to agency-sustained model with zero contractor dependency.");
+
+  document.getElementById('clinText').innerHTML = h("Platform evaluation support, {legacy} portfolio assessment, {asset} complexity classification, migration roadmap development. Covers the full inventory of {legacy} {assets} including {complex}.");
+
+  document.getElementById('complexText').innerHTML = h("~9% of {assets} require full rearchitecture. These include {complex}. This tier activates Optional CLIN 1002 and requires senior expertise on the target platform ({targets}).");
+
+  document.getElementById('ctaText').innerHTML = h("MigrateIQ turns {legacy} migration from a contractor dependency into an agency capability. Built for any organization facing {reason}. Milestone-gated. Platform-agnostic across {targets}. Designed to make itself unnecessary.");
+}
+
+// Initialize
+populateFields();
+renderAll();
+</script>
+
+</body>
+</html>

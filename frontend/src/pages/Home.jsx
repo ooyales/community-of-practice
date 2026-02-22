@@ -1,17 +1,21 @@
-import { ArrowRight, Presentation, Monitor, SlidersHorizontal, FileText, Users, Target, TrendingUp, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Presentation, Monitor, SlidersHorizontal, Settings, FileText, Layers, Users, Target, Shield, ChevronDown } from 'lucide-react';
+import { P, ACTIVE_PLATFORM, PLATFORM_PRESETS } from '../migrateiq-config';
+
+const Asset = P.assets.charAt(0).toUpperCase() + P.assets.slice(1);
 
 const tools = [
   {
-    title: 'Strategy Pitch',
-    desc: 'Full interactive presentation — the challenge, phased approach, team, CLINs, milestones, staffing timeline, and differentiators.',
+    title: 'Strategy Brief',
+    desc: `Full interactive solution overview — the challenge, phased approach, team, CLINs, milestones, staffing timeline, and differentiators.`,
     icon: Presentation,
     href: '/cop-pitch-interactive.html',
     accent: 'var(--accent)',
-    tag: 'Presentation',
+    tag: 'Solution Brief',
   },
   {
-    title: 'CoP Portal Demo',
-    desc: 'Live mockup of the Analytics CoP portal — migration tracker, community activity, leaderboard, and events calendar.',
+    title: 'Solution Portal',
+    desc: `Live prototype of the MigrateIQ portal — migration tracker, community activity, leaderboard, and events calendar.`,
     icon: Monitor,
     href: '/cop-in-a-box-demo.html',
     accent: 'var(--success)',
@@ -19,38 +23,54 @@ const tools = [
   },
   {
     title: 'Scenario Planner',
-    desc: 'Model different migration scenarios — adjust portfolio disposition, migration methods, and see real-time cost & effort comparisons.',
+    desc: `Model different migration scenarios — adjust portfolio disposition, migration methods, and see real-time cost & effort comparisons.`,
     icon: SlidersHorizontal,
     href: '/portfolio-scenario-planner.html',
     accent: 'var(--highlight)',
     tag: 'Interactive Tool',
   },
+  {
+    title: 'Platform Configurator',
+    desc: `See how all materials adapt to any legacy platform — MicroStrategy, Cognos, BusinessObjects, or OBIEE.`,
+    icon: Settings,
+    href: '/migrateiq-configurator.html',
+    accent: 'var(--optional)',
+    tag: 'Configuration',
+  },
 ];
 
 const pillars = [
   {
+    icon: Layers,
+    title: 'Structured Assessment',
+    desc: 'Full portfolio inventory, complexity classification, and prioritized migration roadmap — before a single asset is touched.',
+  },
+  {
     icon: Users,
-    title: 'Community-Led Adoption',
-    desc: 'Peers teach peers. Office hours, showcases, and paired development build organic capability that outlasts any contract.',
+    title: 'Community-Led Enablement',
+    desc: 'Built-in CoP drives organic adoption. Office hours, showcases, and paired development build capability that outlasts the contract.',
   },
   {
     icon: Target,
-    title: 'Milestone-Gated Payments',
+    title: 'Milestone-Gated Delivery',
     desc: 'T&M flexibility with FFP accountability. Hours accrue, but invoicing is gated by inspectable milestone acceptance.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Built-In Demand Signal',
-    desc: 'Optional CLINs activate on real evidence — not guesswork. The CoP reveals where teams need hands-on execution.',
   },
   {
     icon: Shield,
     title: 'Zero Lock-In',
-    desc: 'Every deliverable transfers to the agency. The CoP is designed to outlive the contract. We succeed when you don\'t need us.',
+    desc: 'Every deliverable transfers to the agency. The solution is designed to make itself unnecessary.',
   },
 ];
 
+const platformOptions = Object.entries(PLATFORM_PRESETS).map(([key, v]) => ({
+  key,
+  label: v.legacyFull,
+}));
+
 export default function Home() {
+  const [pdfPlatform, setPdfPlatform] = useState(ACTIVE_PLATFORM);
+  const pdfPreset = PLATFORM_PRESETS[pdfPlatform];
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--paper)', color: 'var(--ink)' }}>
       {/* ─── HERO ─── */}
@@ -58,7 +78,6 @@ export default function Home() {
         background: 'linear-gradient(165deg, #1a1a2e 0%, #2d5a7b 55%, #3a7ca5 100%)',
         minHeight: '520px',
       }}>
-        {/* Decorative orb */}
         <div className="absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%)' }} />
 
@@ -66,25 +85,30 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase mb-8"
             style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--highlight)' }} />
-            Summit Materials
+            Tradewinds Solutions Marketplace
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight max-w-3xl"
             style={{ fontFamily: "'DM Serif Display', serif" }}>
-            Migrate Smarter, Not Harder — A{' '}
-            <em style={{ color: 'var(--highlight)' }}>Community of Practice</em> Approach
+            Migrate<em style={{ color: 'var(--highlight)' }}>IQ</em>
           </h1>
 
+          <p className="mt-2 text-lg md:text-xl font-light tracking-wide uppercase"
+            style={{ fontFamily: "'JetBrains Mono', monospace", opacity: 0.5, letterSpacing: '0.12em' }}>
+            Migration Intelligence Platform
+          </p>
+
           <p className="mt-6 text-base md:text-lg font-light max-w-2xl leading-relaxed" style={{ opacity: 0.85 }}>
-            Accelerate MicroStrategy disinvestment through structured enablement, organic adoption,
-            and on-demand professional services — all under a single flexible T&M engagement.
+            Structured migration solution for {P.legacyFull} to {P.targets} —
+            assessment, planning, community-led enablement, and on-demand execution
+            under a single marketplace offering.
           </p>
 
           <div className="flex flex-wrap gap-10 mt-12">
             {[
-              { value: '3×', label: 'Faster Adoption' },
+              { value: P.portfolio, label: `${Asset} Portfolio` },
               { value: '40–60%', label: 'Cost Reduction' },
-              { value: '3 Platforms', label: 'One Team' },
+              { value: '4 Phases', label: 'Assess · Plan · Enable · Execute' },
               { value: '7', label: 'Milestone Gates' },
             ].map((s) => (
               <div key={s.label} className="flex flex-col">
@@ -99,14 +123,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Bottom fade line */}
         <div className="absolute bottom-0 left-0 right-0 h-px"
           style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
       </header>
 
       {/* ─── TOOL CARDS ─── */}
       <section className="max-w-5xl mx-auto px-8 -mt-10 relative z-20">
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {tools.map((t) => (
             <a
               key={t.title}
@@ -147,46 +170,67 @@ export default function Home() {
 
       {/* ─── ONE-PAGER DOWNLOAD ─── */}
       <section className="max-w-5xl mx-auto px-8 mt-6">
-        <a
-          href="/cop-one-pager.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-4 rounded-lg p-5 transition-all duration-200 hover:-translate-y-0.5"
+        <div className="flex items-center gap-4 rounded-lg p-5"
           style={{
             background: 'var(--card-bg, #fff)',
             border: '1px solid var(--border)',
             boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
           }}
         >
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: 'var(--ink)' }}>
             <FileText size={20} color="var(--highlight)" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold" style={{ fontFamily: "'DM Serif Display', serif" }}>
-              One-Pager — Strategic Capability Brief
+              One-Pager — MigrateIQ Solution Brief
             </h3>
             <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>
-              PDF leave-behind with milestones, CLINs, team, and phased approach. Print-ready.
+              PDF leave-behind — milestones, CLINs, team, and phased approach. Print-ready.
             </p>
           </div>
-          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--accent)' }}>
+          <div className="relative flex-shrink-0">
+            <select
+              value={pdfPlatform}
+              onChange={(e) => setPdfPlatform(e.target.value)}
+              className="appearance-none text-xs font-medium pl-3 pr-7 py-2 rounded-md cursor-pointer"
+              style={{
+                background: 'var(--paper)',
+                border: '1px solid var(--border)',
+                color: 'var(--ink)',
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              {platformOptions.map((o) => (
+                <option key={o.key} value={o.key}>{o.label}</option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted)' }} />
+          </div>
+          <a
+            href={`/migrateiq-onepager-${pdfPlatform}.pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 px-4 py-2 rounded-md text-xs font-medium uppercase tracking-wider transition-all duration-200 hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+          >
             Download PDF
-          </span>
-        </a>
+          </a>
+        </div>
       </section>
 
-      {/* ─── WHY A COP ─── */}
+      {/* ─── WHY MIGRATEIQ ─── */}
       <section className="max-w-5xl mx-auto px-8 py-20">
         <div className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--accent)' }}>
-          The Approach
+          The Platform
         </div>
         <h2 className="text-2xl md:text-3xl max-w-lg mb-3" style={{ fontFamily: "'DM Serif Display', serif" }}>
-          Why a Community of Practice?
+          Why MigrateIQ?
         </h2>
         <p className="max-w-xl mb-12 leading-relaxed" style={{ color: 'var(--muted)' }}>
-          The traditional model — award a contract, throw bodies at the problem, hope for the best — leaves
-          agencies dependent on contractors and wondering where the money went. The CoP model flips that script.
+          MigrateIQ combines structured assessment, community-driven enablement,
+          and on-demand execution into a single marketplace offering — built for
+          any agency facing legacy BI platform disinvestment.
         </p>
 
         <div className="grid md:grid-cols-2 gap-5">
@@ -208,38 +252,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── PHASED SUMMARY ─── */}
+      {/* ─── PHASED APPROACH ─── */}
       <section className="text-white py-20" style={{ background: 'var(--ink)' }}>
         <div className="max-w-5xl mx-auto px-8">
           <div className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--highlight)' }}>
-            Phased Approach
+            Solution Delivery
           </div>
           <h2 className="text-2xl md:text-3xl max-w-lg mb-12" style={{ fontFamily: "'DM Serif Display', serif" }}>
-            Three Phases, One Continuous Engagement
+            Four Phases, One Solution
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 phase: 'Phase 1',
-                months: 'Mo 1–4',
-                title: 'AoA Support & CoP Standup',
-                items: ['Platform evaluation (Tableau, Qlik, Power BI)', 'Portfolio assessment & classification', 'CoP infrastructure & governance'],
+                months: 'Mo 1–2',
+                title: 'Assess',
+                items: [`Evaluate Tableau, Qlik, Power BI/Fabric`, `Full ${P.legacy} portfolio inventory`, `Complexity classification`],
                 color: 'var(--accent)',
               },
               {
                 phase: 'Phase 2',
-                months: 'Mo 5–9',
-                title: 'Pilot Migration & Enablement',
-                items: ['Office hours, showcases, paired development', 'First 150+ dashboards migrated', 'Self-service ratio target: ≥40%'],
+                months: 'Mo 3–4',
+                title: 'Plan',
+                items: ['Prioritized migration roadmap', 'CoP infrastructure & governance', 'Training curriculum development'],
                 color: 'var(--accent-light)',
               },
               {
                 phase: 'Phase 3',
-                months: 'Mo 10+',
-                title: 'Scaled Migration & Execution',
-                items: ['Optional CLINs activate on demand', 'Full-scale migration to completion', 'CoP transitions to agency-sustained'],
+                months: 'Mo 5–9',
+                title: 'Enable',
+                items: ['Office hours, showcases, paired dev', `First 150+ ${P.assets} migrated`, 'Self-service ratio target: \u226540%'],
                 color: 'var(--highlight)',
+              },
+              {
+                phase: 'Phase 4',
+                months: 'Mo 10+',
+                title: 'Execute',
+                items: ['Optional CLINs activate on demand', 'Full-scale migration to completion', 'CoP transitions to agency-sustained'],
+                color: 'var(--success)',
               },
             ].map((p) => (
               <div key={p.phase} className="rounded-lg p-6" style={{
@@ -259,7 +310,7 @@ export default function Home() {
                 <ul className="space-y-2">
                   {p.items.map((item) => (
                     <li key={item} className="text-sm flex items-start gap-2" style={{ opacity: 0.6 }}>
-                      <span style={{ color: p.color }}>→</span> {item}
+                      <span style={{ color: p.color }}>&rarr;</span> {item}
                     </li>
                   ))}
                 </ul>
@@ -274,10 +325,11 @@ export default function Home() {
         background: 'linear-gradient(180deg, var(--paper) 0%, #eeebe4 100%)',
       }}>
         <h2 className="text-2xl md:text-3xl mb-4 mx-auto max-w-md" style={{ fontFamily: "'DM Serif Display', serif" }}>
-          Sell Outcomes, Not Hours
+          Ready for Tradewinds?
         </h2>
         <p className="max-w-md mx-auto mb-8 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          Enablement first. Execution when you need it. T&M flexibility with milestone accountability.
+          MigrateIQ is a structured migration solution — assessment, enablement,
+          and execution under a single marketplace offering with milestone accountability.
         </p>
         <div className="flex justify-center gap-3 text-xs font-semibold tracking-wider uppercase"
           style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--accent)' }}>
@@ -286,6 +338,8 @@ export default function Home() {
           <span>Milestone Invoicing</span>
           <span style={{ opacity: 0.3 }}>·</span>
           <span>Optional CLINs</span>
+          <span style={{ opacity: 0.3 }}>·</span>
+          <span>Tradewinds Ready</span>
         </div>
       </section>
     </div>
