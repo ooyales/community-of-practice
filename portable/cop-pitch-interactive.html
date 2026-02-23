@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MigrateIQ — Migration Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f7f5f0;
+    --accent: #2d5a7b;
+    --accent-light: #3a7ca5;
+    --highlight: #d4a843;
+    --highlight-soft: #f0e4c4;
+    --muted: #6b7280;
+    --border: #d1cdc4;
+    --card-bg: #ffffff;
+    --phase1: #2d5a7b;
+    --phase2: #3a7ca5;
+    --phase3: #d4a843;
+    --success: #2d6a4f;
+    --success-light: #d8f3dc;
+    --optional: #7c3aed;
+    --optional-light: #ede9fe;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── STICKY NAV ─── */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(26,26,46,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transform: translateY(-100%);
+    transition: transform 0.35s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+  }
+
+  .nav.visible { transform: translateY(0); }
+
+  .nav-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  .nav-brand em { color: var(--highlight); font-style: italic; }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-link {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(165deg, #1a1a2e 0%, #2d5a7b 55%, #3a7ca5 100%);
+    color: #fff;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    animation: floatOrb 12s ease-in-out infinite;
+  }
+
+  @keyframes floatOrb {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-40px, 30px); }
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.8s ease-out;
+    width: fit-content;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--highlight);
+    border-radius: 50%;
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    max-width: 800px;
+    animation: slideUp 0.8s ease-out 0.1s both;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--highlight); }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    font-weight: 300;
+    max-width: 620px;
+    margin-top: 28px;
+    opacity: 0.85;
+    line-height: 1.7;
+    animation: slideUp 0.8s ease-out 0.25s both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 56px;
+    animation: slideUp 0.8s ease-out 0.4s both;
+  }
+
+  .hero-stat { display: flex; flex-direction: column; }
+
+  .hero-stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    color: var(--highlight);
+  }
+
+  .hero-stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.65;
+    margin-top: 4px;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 32px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    animation: pulse 2s ease-in-out infinite;
+    cursor: pointer;
+  }
+
+  .scroll-cue svg { width: 16px; height: 16px; }
+
+  /* ─── SCROLL ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 100px 60px; }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400;
+    line-height: 1.2;
+    max-width: 600px;
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    max-width: 640px;
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin-bottom: 56px;
+    line-height: 1.75;
+  }
+
+  /* ─── PROBLEM / SOLUTION ─── */
+  .problem-section { background: var(--ink); color: #fff; }
+  .problem-section .section-label { color: var(--highlight); }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 48px;
+  }
+
+  .problem-card {
+    padding: 40px 32px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.4s ease;
+    cursor: default;
+  }
+
+  .problem-card:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+  }
+
+  .problem-card-icon { font-size: 1.6rem; margin-bottom: 20px; }
+
+  .problem-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .problem-card p { font-size: 0.9rem; opacity: 0.6; line-height: 1.65; }
+
+  .problem-card.solution {
+    background: rgba(212,168,67,0.08);
+    border-color: rgba(212,168,67,0.15);
+  }
+
+  .problem-card.solution:hover {
+    background: rgba(212,168,67,0.14);
+  }
+
+  .problem-card.solution h3 { color: var(--highlight); }
+
+  /* ─── PHASED TIMELINE ─── */
+  .timeline-container { position: relative; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .phase-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    padding-left: 28px;
+    padding-top: 28px;
+  }
+
+  .phase-marker::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 36px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    background: var(--paper);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .phase-marker::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 52px;
+    width: 2px;
+    height: calc(100% - 16px);
+    background: var(--border);
+    z-index: 1;
+  }
+
+  .phase:last-child .phase-marker::after { display: none; }
+
+  .phase[data-phase="1"] .phase-marker::before { border-color: var(--phase1); }
+  .phase[data-phase="2"] .phase-marker::before { border-color: var(--phase2); }
+  .phase[data-phase="3"] .phase-marker::before { border-color: var(--phase3); }
+
+  .phase.active .phase-marker::before {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 4px rgba(45,90,123,0.15);
+  }
+
+  .phase-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .phase-months {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+  }
+
+  .phase-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: all 0.35s ease;
+    overflow: hidden;
+  }
+
+  .phase-header {
+    padding: 28px 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  .phase-header:hover { background: rgba(45,90,123,0.02); }
+
+  .phase-header-left { flex: 1; }
+
+  .phase-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 6px;
+  }
+
+  .phase-header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 560px;
+  }
+
+  .phase-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: 20px;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+
+  .phase-toggle svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--muted);
+    transition: transform 0.3s ease;
+  }
+
+  .phase.active .phase-toggle {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .phase.active .phase-toggle svg {
+    stroke: #fff;
+    transform: rotate(180deg);
+  }
+
+  .phase.active .phase-content {
+    border-color: var(--accent);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .phase-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s ease, padding 0.35s ease;
+    padding: 0 36px;
+  }
+
+  .phase.active .phase-body {
+    max-height: 500px;
+    padding: 0 36px 32px;
+  }
+
+  .phase-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase-detail-group h4 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .phase-detail-group ul { list-style: none; }
+
+  .phase-detail-group li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .phase-detail-group li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+    font-size: 0.75rem;
+  }
+
+  /* ─── TEAM ─── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .team-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .team-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  }
+
+  .team-card-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .team-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 6px;
+  }
+
+  .team-card-labor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding: 4px 8px;
+    background: rgba(45,90,123,0.05);
+    display: inline-block;
+  }
+
+  .team-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .team-card-fte {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+  }
+
+  .team-card.lead {
+    border-color: var(--highlight);
+    background: linear-gradient(160deg, var(--card-bg) 0%, rgba(212,168,67,0.04) 100%);
+  }
+
+  .team-card.lead .team-card-level { color: var(--highlight); }
+
+  /* Phase indicators on team cards */
+  .team-card-phases {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .phase-pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    position: relative;
+  }
+
+  .phase-pip.active-phase { background: var(--accent); }
+  .phase-pip[data-p="3"].active-phase { background: var(--highlight); }
+
+  .phase-pip::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding-bottom: 4px;
+  }
+
+  .phase-pip:hover::after { opacity: 1; }
+
+  /* ─── CLIN STRUCTURE ─── */
+  .clin-section { background: #fafaf7; }
+
+  /* Tab Filter */
+  .clin-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    background: rgba(45,90,123,0.04);
+    padding: 4px;
+    border-radius: 8px;
+    width: fit-content;
+  }
+
+  .clin-tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .clin-tab:hover { color: var(--ink); }
+  .clin-tab.active { background: var(--card-bg); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+  .clin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+  }
+
+  .clin-table thead { background: var(--ink); color: #fff; }
+
+  .clin-table th {
+    padding: 16px 24px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  .clin-table td {
+    padding: 20px 24px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    transition: all 0.3s ease;
+  }
+
+  .clin-table tr:last-child td { border-bottom: none; }
+  .clin-table tbody tr { transition: all 0.35s ease; }
+  .clin-table tbody tr:hover td { background: rgba(45,90,123,0.02); }
+
+  .clin-table tbody tr.hidden-row {
+    opacity: 0;
+    max-height: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .clin-table tbody tr.hidden-row td {
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none;
+    line-height: 0;
+    font-size: 0;
+    overflow: hidden;
+  }
+
+  .clin-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+
+  .clin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .clin-badge.base { background: var(--success-light); color: var(--success); }
+  .clin-badge.optional { background: var(--optional-light); color: var(--optional); }
+
+  .clin-desc {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 6px;
+    line-height: 1.55;
+  }
+
+  .clin-labor-cats { font-size: 0.82rem; color: var(--muted); }
+
+  .clin-labor-cats span {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px 4px 2px 0;
+    background: rgba(45,90,123,0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+  }
+
+  .clin-note {
+    margin-top: 24px;
+    padding: 20px 24px;
+    background: rgba(212,168,67,0.08);
+    border-left: 3px solid var(--highlight);
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.65;
+  }
+
+  .clin-note strong { color: var(--highlight); }
+
+  /* ─── CLIN ESTIMATOR ─── */
+  .estimator {
+    margin-top: 40px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 36px;
+  }
+
+  .estimator-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+  }
+
+  .estimator-subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .estimator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .estimator-controls { display: flex; flex-direction: column; gap: 20px; }
+
+  .control-group label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .control-group input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  .control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--card-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  .control-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    margin-top: 6px;
+  }
+
+  .estimator-output {
+    background: var(--ink);
+    color: #fff;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .estimate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .estimate-row:last-child { border-bottom: none; }
+
+  .estimate-label {
+    font-size: 0.78rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .estimate-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .estimate-row.total {
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    border-bottom: none;
+  }
+
+  .estimate-row.total .estimate-label {
+    opacity: 1;
+    font-weight: 600;
+    color: var(--highlight);
+  }
+
+  .estimate-row.total .estimate-value {
+    font-size: 1.3rem;
+    color: var(--highlight);
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+  }
+
+  .toggle-chip:hover { border-color: var(--accent); color: var(--ink); }
+
+  .toggle-chip.active {
+    background: var(--optional-light);
+    border-color: var(--optional);
+    color: var(--optional);
+  }
+
+  /* ─── METRICS ─── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .metric-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .metric-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .metric-icon { font-size: 1.5rem; margin-bottom: 16px; }
+
+  .metric-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .metric-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Animated counter for metrics */
+  .metric-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  /* ─── DIFFERENTIATOR ─── */
+  .diff-section {
+    background: var(--ink);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diff-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,67,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .diff-section .section-label { color: var(--highlight); }
+
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 48px;
+  }
+
+  .diff-item {
+    padding: 36px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .diff-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--highlight);
+    transition: width 0.5s ease;
+  }
+
+  .diff-item:hover::before { width: 100%; }
+
+  .diff-item:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+
+  .diff-item h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: 12px;
+    color: var(--highlight);
+  }
+
+  .diff-item p {
+    font-size: 0.9rem;
+    opacity: 0.65;
+    line-height: 1.7;
+  }
+
+  .platform-tags {
+    display: flex;
+    gap: 12px;
+    margin-top: 48px;
+  }
+
+  .platform-tag {
+    padding: 10px 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.04);
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .platform-tag:hover {
+    background: rgba(212,168,67,0.15);
+    border-color: var(--highlight);
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    text-align: center;
+    padding: 120px 60px;
+    background: linear-gradient(180deg, var(--paper) 0%, #eeebe4 100%);
+  }
+
+  .cta-section .section-title { margin: 0 auto 16px; }
+
+  .cta-section p {
+    max-width: 520px;
+    margin: 0 auto 40px;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .cta-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  /* ─── STAFFING GANTT CHART ─── */
+  .gantt-container {
+    overflow-x: auto;
+    margin-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .gantt {
+    min-width: 900px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .gantt-header {
+    display: grid;
+    grid-template-columns: 200px repeat(18, 1fr);
+    background: var(--ink);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .gantt-header-label {
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .gantt-month {
+    padding: 6px 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    border-right: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .gantt-phase-row {
+    display: grid;
+    grid-template-columns: 200px repeat(18, 1fr);
+    background: rgba(45,90,123,0.04);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .gantt-phase-label {
+    padding: 6px 14px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .gantt-phase-bar {
+    position: relative;
+    border-right: 1px solid rgba(0,0,0,0.03);
+  }
+
+  .gantt-phase-fill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    border-radius: 2px;
+    opacity: 0.12;
+  }
+
+  .gantt-row {
+    display: grid;
+    grid-template-columns: 200px repeat(18, 1fr);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    transition: background 0.15s ease;
+  }
+
+  .gantt-row:hover { background: rgba(45,90,123,0.02); }
+
+  .gantt-row-label {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-right: 1px solid var(--border);
+  }
+
+  .gantt-role {
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .gantt-labor-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+  }
+
+  .gantt-fte {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    margin-top: 1px;
+  }
+
+  .gantt-cell {
+    position: relative;
+    border-right: 1px solid rgba(0,0,0,0.03);
+    min-height: 44px;
+  }
+
+  .gantt-bar {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 1px;
+    right: 1px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .gantt-bar.base { background: var(--accent); opacity: 0.75; }
+  .gantt-bar.base:hover { opacity: 1; }
+  .gantt-bar.ramp { background: var(--accent); opacity: 0.35; background-image: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.15) 3px, rgba(255,255,255,0.15) 6px); }
+  .gantt-bar.optional { background: var(--optional); opacity: 0.6; }
+  .gantt-bar.optional:hover { opacity: 0.85; }
+  .gantt-bar.taper { background: var(--accent); opacity: 0.25; }
+  .gantt-bar.highlight-bar { background: var(--highlight); opacity: 0.7; }
+  .gantt-bar.highlight-bar:hover { opacity: 1; }
+
+  /* Milestone markers on Gantt */
+  .gantt-milestone-row {
+    display: grid;
+    grid-template-columns: 200px repeat(18, 1fr);
+    background: rgba(212,168,67,0.06);
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  .gantt-milestone-label {
+    padding: 8px 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--highlight);
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .gantt-ms-cell {
+    position: relative;
+    border-right: 1px solid rgba(0,0,0,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gantt-ms-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .gantt-ms-diamond {
+    width: 10px;
+    height: 10px;
+    background: var(--highlight);
+    transform: rotate(45deg);
+    border-radius: 1px;
+  }
+
+  .gantt-ms-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--highlight);
+    margin-top: 2px;
+  }
+
+  .gantt-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .gantt-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .gantt-legend-swatch {
+    width: 16px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  /* ─── MILESTONE REFERENCES IN CLIN TABLE ─── */
+  .milestone-ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--highlight);
+    background: rgba(212,168,67,0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* ─── MILESTONE SECTION ─── */
+  .ms-timeline {
+    max-width: 720px;
+  }
+
+  .ms-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 36px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .ms-phase-header:first-child { margin-top: 0; }
+
+  .ms-phase-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ms-phase-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    flex: 1;
+  }
+
+  .ms-phase-months {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    opacity: 0.5;
+  }
+
+  .ms-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    overflow: hidden;
+  }
+
+  .ms-card:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  .ms-card.active {
+    border-color: rgba(212,168,67,0.3);
+    background: rgba(212,168,67,0.04);
+  }
+
+  .ms-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .ms-card-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--highlight);
+    background: rgba(212,168,67,0.12);
+    padding: 3px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .ms-card-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .ms-card-timing {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    opacity: 0.45;
+    flex-shrink: 0;
+  }
+
+  .ms-card-toggle {
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .ms-card.active .ms-card-toggle {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+
+  .ms-card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding: 0 20px;
+  }
+
+  .ms-card.active .ms-card-body {
+    max-height: 300px;
+    padding: 0 20px 20px;
+  }
+
+  .ms-deliverables {
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .ms-del-title {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--highlight);
+    margin-bottom: 10px;
+  }
+
+  .ms-del-item {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    padding: 3px 0;
+    line-height: 1.5;
+  }
+
+  .ms-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .ms-clin-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(45,106,79,0.2);
+    color: #6ee7b7;
+  }
+
+  .ms-clin-tag.opt {
+    background: rgba(124,58,237,0.2);
+    color: #c4b5fd;
+  }
+
+  .ms-summary {
+    margin-top: 40px;
+    padding: 24px 28px;
+    border-left: 3px solid var(--highlight);
+    background: rgba(212,168,67,0.05);
+  }
+
+  .ms-summary-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--highlight);
+    margin-bottom: 8px;
+  }
+
+  .ms-summary-text {
+    font-size: 0.9rem;
+    opacity: 0.65;
+    line-height: 1.7;
+  }
+
+  /* ─── PLATFORM SWITCHER ─── */
+  .platform-switcher {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255,255,255,0.06);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .platform-switch-btn {
+    padding: 4px 12px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .platform-switch-btn:hover {
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .platform-switch-btn.active {
+    color: var(--highlight);
+    background: rgba(212,168,67,0.12);
+    font-weight: 600;
+  }
+
+  .platform-switch-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 8px 0 4px;
+  }
+
+  /* Transition effect when switching */
+  .platform-transitioning * {
+    transition: opacity 0.15s ease !important;
+  }
+
+  .platform-flash {
+    animation: platformFlash 0.4s ease;
+  }
+
+  @keyframes platformFlash {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .hero, section { padding: 60px 28px; }
+    .nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero-stats { gap: 28px; flex-wrap: wrap; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+    .phase-marker { display: none; }
+    .phase-details { grid-template-columns: 1fr; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .diff-grid { grid-template-columns: 1fr; }
+    .clin-table { font-size: 0.82rem; }
+    .clin-table th, .clin-table td { padding: 12px 14px; }
+    .platform-tags { flex-wrap: wrap; }
+    .estimator-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ STICKY NAV ═══════════ -->
+<nav class="nav" id="mainNav">
+  <a href="./index.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.75rem;font-weight:500;margin-right:16px;white-space:nowrap">&larr; Hub</a>
+  <div class="nav-brand">Migrate<em>IQ</em></div>
+  <div class="nav-links">
+    <a href="#challenge" class="nav-link" data-section="challenge">Challenge</a>
+    <a href="#approach" class="nav-link" data-section="approach">Approach</a>
+    <a href="#team" class="nav-link" data-section="team">Team</a>
+    <a href="#clins" class="nav-link" data-section="clins">CLINs</a>
+    <a href="#milestones" class="nav-link" data-section="milestones">Milestones</a>
+    <a href="#staffing" class="nav-link" data-section="staffing">Staffing</a>
+    <a href="#metrics" class="nav-link" data-section="metrics">Metrics</a>
+    <a href="#differentiators" class="nav-link" data-section="differentiators">Why Us</a>
+  </div>
+  <div class="platform-switcher">
+    <span class="platform-switch-label">Platform</span>
+    <button class="platform-switch-btn active" data-platform="microstrategy">MicroStrategy</button>
+    <button class="platform-switch-btn" data-platform="cognos">Cognos</button>
+    <button class="platform-switch-btn" data-platform="bobj">BOBJ</button>
+    <button class="platform-switch-btn" data-platform="obiee">OBIEE</button>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero" id="hero">
+  <div class="hero-badge">MigrateIQ Solution Brief</div>
+  <h1>Migrate Smarter,<br>Not Harder — The <em>MigrateIQ</em> Approach</h1>
+  <p class="hero-sub">Accelerate your MicroStrategy disinvestment through structured enablement, organic adoption, and on-demand professional services — all under a single flexible T&M engagement.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">3,000</div>
+      <div class="hero-stat-label">Dashboard Portfolio</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">40–60%</div>
+      <div class="hero-stat-label">Cost Reduction per Dashboard Migrated</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">3</div>
+      <div class="hero-stat-label">Platforms — One Team</div>
+    </div>
+  </div>
+  <div class="scroll-cue" onclick="document.getElementById('challenge').scrollIntoView({behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    Scroll to explore
+  </div>
+</div>
+
+<!-- ═══════════ THE CHALLENGE ═══════════ -->
+<section class="problem-section" id="challenge">
+  <div class="section-label reveal">The Challenge</div>
+  <div class="section-title reveal reveal-delay-1" style="color:#fff">MicroStrategy is Disinvested. The Question Isn't <em style="color:var(--highlight)">Whether</em> to Migrate — It's <em style="color:var(--highlight)">How</em>.</div>
+  <div class="problem-grid">
+    <div class="problem-card reveal reveal-delay-1">
+      <div class="problem-card-icon">🚫</div>
+      <h3>Option A: Big-Bang Migration</h3>
+      <p>Hire a large team to rewrite every dashboard. Expensive ($$$), slow (12–18 months), high risk of scope creep, and the agency learns nothing — still dependent on contractors the day after cutover.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-2">
+      <div class="problem-card-icon">🤷</div>
+      <h3>Option B: DIY & Hope</h3>
+      <p>Tell program offices to figure it out. Results in inconsistent quality, duplicated effort, tribal knowledge, no governance, and shadow analytics that make the CISO nervous.</p>
+    </div>
+    <div class="problem-card solution reveal reveal-delay-3">
+      <div class="problem-card-icon">✦</div>
+      <h3>Option C: MigrateIQ</h3>
+      <p>A structured migration solution that builds organic capability across the agency — supported by professional services that scale up when departments need hands-on execution. The best of both worlds.</p>
+    </div>
+  </div>
+
+  <!-- Portfolio Breakdown -->
+  <div style="margin-top:48px;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" class="reveal">
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:20px">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.15rem">3,000 Dashboards — Estimated Breakdown</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;opacity:0.45">Validated during Portfolio Assessment (M3)</div>
+    </div>
+
+    <!-- Stacked bar -->
+    <div style="display:flex;height:32px;border-radius:4px;overflow:hidden;margin-bottom:16px">
+      <div style="width:35%;background:var(--muted);opacity:0.5;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;color:#fff">~1,050 Retire</div>
+      <div style="width:33%;background:var(--success);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;color:#fff">~990 Simple</div>
+      <div style="width:23%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;color:#fff">~690 Medium</div>
+      <div style="width:9%;background:var(--highlight);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:var(--ink)">~270</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--muted);opacity:0.5"></div>
+          <span style="font-size:0.78rem;font-weight:500">Retire / Decommission</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.5">~35% — Duplicates, obsolete, unused. Identified in M3. Immediate license savings.</div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--success)"></div>
+          <span style="font-size:0.78rem;font-weight:500">Simple (Republish)</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.5">~33% — Basic reports and charts. Prime CoP self-service candidates with templates.</div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--accent-light)"></div>
+          <span style="font-size:0.78rem;font-weight:500">Medium (Redesign)</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.5">~23% — Requires rethinking. Mix of CoP-assisted and Champion-led migration.</div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--highlight)"></div>
+          <span style="font-size:0.78rem;font-weight:500">Complex (Rearchitect)</span>
+        </div>
+        <div style="font-size:0.75rem;opacity:0.5">~9% — Embedded analytics, complex logic. Optional CLIN 1002 territory.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PHASED APPROACH ═══════════ -->
+<section id="approach">
+  <div class="section-label reveal">Phased Approach</div>
+  <div class="section-title reveal reveal-delay-1">Three Phases, One Continuous Engagement</div>
+  <p class="section-desc reveal reveal-delay-2">A T&M structure lets us flex between enablement and execution without contract modifications. You pay for what you use, and the mix evolves as your teams mature. <strong>Click each phase to expand.</strong></p>
+
+  <div class="timeline-container">
+    <div class="phase active reveal reveal-delay-2" data-phase="1">
+      <div class="phase-marker">
+        <div class="phase-number">Phase 1</div>
+        <div class="phase-months">Months 1–4</div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <h3>AoA Support & CoP Standup</h3>
+            <p>Platform-agnostic advisory during the Analysis of Alternatives, portfolio assessment, and CoP infrastructure buildout.</p>
+          </div>
+          <div class="phase-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-details">
+            <div class="phase-detail-group">
+              <h4>Key Activities</h4>
+              <ul>
+                <li>Evaluate Tableau, Qlik, Power BI / Fabric</li>
+                <li>Classify dashboards by migration complexity</li>
+                <li>Stand up CoP site, governance, cadence</li>
+                <li>Develop initial training curriculum</li>
+                <li>Establish adoption KPIs and baseline</li>
+              </ul>
+            </div>
+            <div class="phase-detail-group">
+              <h4>Staffing</h4>
+              <ul>
+                <li>Practice Lead / Solutions Architect</li>
+                <li>Community Manager</li>
+                <li>1 × Visualization Champion</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase reveal reveal-delay-3" data-phase="2">
+      <div class="phase-marker">
+        <div class="phase-number">Phase 2</div>
+        <div class="phase-months">Months 5–9</div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <h3>Pilot Migration & Enablement</h3>
+            <p>Platform selected. CoP running — office hours, showcases, paired development. This is where leadership sees what "good" looks like.</p>
+          </div>
+          <div class="phase-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-details">
+            <div class="phase-detail-group">
+              <h4>Key Activities</h4>
+              <ul>
+                <li>Migrate priority dashboard portfolio</li>
+                <li>Run weekly office hours & showcases</li>
+                <li>Build reference architectures & templates</li>
+                <li>Pair-develop with agency analysts</li>
+                <li>Track self-service vs. assisted ratio</li>
+              </ul>
+            </div>
+            <div class="phase-detail-group">
+              <h4>Staffing</h4>
+              <ul>
+                <li>Practice Lead / Solutions Architect</li>
+                <li>Community Manager</li>
+                <li>2 × Visualization Champions</li>
+                <li>Training & Enablement Specialist</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase reveal reveal-delay-4" data-phase="3">
+      <div class="phase-marker">
+        <div class="phase-number">Phase 3</div>
+        <div class="phase-months">Months 10+</div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <h3>Scaled Migration & Execution</h3>
+            <p>The predictable pivot. Optional CLINs activate to meet demand — no contract mod required.</p>
+          </div>
+          <div class="phase-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-details">
+            <div class="phase-detail-group">
+              <h4>Key Activities</h4>
+              <ul>
+                <li>Execute full-scale dashboard migration</li>
+                <li>Stand up governance & data stewardship</li>
+                <li>Decommission MicroStrategy environments</li>
+                <li>Transition CoP to agency-sustained model</li>
+                <li>Final adoption metrics & lessons learned</li>
+              </ul>
+            </div>
+            <div class="phase-detail-group">
+              <h4>Staffing (Scaled)</h4>
+              <ul>
+                <li>Practice Lead / Solutions Architect</li>
+                <li>Community Manager</li>
+                <li>3+ Viz Champions / BI Developers</li>
+                <li>Migration Architect</li>
+                <li>Training & Enablement Specialist</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TEAM ═══════════ -->
+<section style="background:#fafaf7" id="team">
+  <div class="section-label reveal">The Team</div>
+  <div class="section-title reveal reveal-delay-1">Right People, Right Roles, Right Mix</div>
+  <p class="section-desc reveal reveal-delay-2">Each role maps to standard federal labor categories. The T&M structure lets us flex the team composition as needs evolve across phases.</p>
+
+  <div class="team-grid">
+    <div class="team-card lead reveal reveal-delay-1">
+      <div class="team-card-fte">Fractional</div>
+      <div class="team-card-level">Practice Lead</div>
+      <h3>Solutions Architect</h3>
+      <div class="team-card-labor">Sr. Data Analytics Architect</div>
+      <p>Platform-agnostic advisory across Tableau, Qlik, and Power BI/Fabric. Leads AoA evaluation, designs migration roadmap, and provides architectural governance throughout.</p>
+      <div class="team-card-phases">
+        <span class="phase-pip active-phase" data-p="1" data-label="Phase 1"></span>
+        <span class="phase-pip active-phase" data-p="2" data-label="Phase 2"></span>
+        <span class="phase-pip active-phase" data-p="3" data-label="Phase 3"></span>
+      </div>
+    </div>
+
+    <div class="team-card reveal reveal-delay-2">
+      <div class="team-card-fte">1 FTE</div>
+      <div class="team-card-level">Connective Tissue</div>
+      <h3>Community Manager</h3>
+      <div class="team-card-labor">Knowledge Mgmt Specialist</div>
+      <p>Runs the CoP cadence — office hours, showcases, onboarding tracks. Maintains the knowledge base, tracks adoption metrics, and identifies where teams need hands-on support.</p>
+      <div class="team-card-phases">
+        <span class="phase-pip active-phase" data-p="1" data-label="Phase 1"></span>
+        <span class="phase-pip active-phase" data-p="2" data-label="Phase 2"></span>
+        <span class="phase-pip active-phase" data-p="3" data-label="Phase 3"></span>
+      </div>
+    </div>
+
+    <div class="team-card reveal reveal-delay-3">
+      <div class="team-card-fte">2–3 FTE</div>
+      <div class="team-card-level">Technical Core</div>
+      <h3>Visualization Champions</h3>
+      <div class="team-card-labor">BI Developer / Data Viz Engineer</div>
+      <p>Platform SMEs who run workshops, design reviews, and pair with agency staff. Early on: mostly coaching. Over time: shift toward direct execution as demand scales.</p>
+      <div class="team-card-phases">
+        <span class="phase-pip active-phase" data-p="1" data-label="Phase 1"></span>
+        <span class="phase-pip active-phase" data-p="2" data-label="Phase 2"></span>
+        <span class="phase-pip active-phase" data-p="3" data-label="Phase 3"></span>
+      </div>
+    </div>
+
+    <div class="team-card reveal reveal-delay-4">
+      <div class="team-card-fte">1 FTE</div>
+      <div class="team-card-level">Roadmap & Architecture</div>
+      <h3>Migration Architect</h3>
+      <div class="team-card-labor">Sr. Enterprise BI Architect</div>
+      <p>Assesses the MicroStrategy portfolio, classifies dashboards by complexity tier, and builds the migration roadmap. Heaviest in Phase 1–2, tapers as migration completes.</p>
+      <div class="team-card-phases">
+        <span class="phase-pip active-phase" data-p="1" data-label="Phase 1"></span>
+        <span class="phase-pip active-phase" data-p="2" data-label="Phase 2"></span>
+        <span class="phase-pip" data-p="3" data-label="Phase 3"></span>
+      </div>
+    </div>
+
+    <div class="team-card reveal reveal-delay-4">
+      <div class="team-card-fte">1 FTE</div>
+      <div class="team-card-level">Scalable Enablement</div>
+      <h3>Training Specialist</h3>
+      <div class="team-card-labor">Technical Training Developer</div>
+      <p>Develops curriculum, self-paced learning paths, and certification prep aligned to the selected platform. Focused on scalable content — distinct from 1:1 Champion coaching.</p>
+      <div class="team-card-phases">
+        <span class="phase-pip" data-p="1" data-label="Phase 1"></span>
+        <span class="phase-pip active-phase" data-p="2" data-label="Phase 2"></span>
+        <span class="phase-pip active-phase" data-p="3" data-label="Phase 3"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CLIN STRUCTURE ═══════════ -->
+<section class="clin-section" id="clins">
+  <div class="section-label reveal">Contract Structure</div>
+  <div class="section-title reveal reveal-delay-1">T&M with Optional CLINs — Flexibility by Design</div>
+  <p class="section-desc reveal reveal-delay-2">Base CLINs cover the enablement core. Optional CLINs with pre-negotiated ceilings let the agency scale execution capacity without a contract modification. Invoicing is tied to milestone acceptance — you pay for outcomes, not hours.</p>
+
+  <div class="clin-tabs reveal reveal-delay-2">
+    <button class="clin-tab active" onclick="filterClins('all')">All CLINs</button>
+    <button class="clin-tab" onclick="filterClins('base')">Base Only</button>
+    <button class="clin-tab" onclick="filterClins('optional')">Optional Only</button>
+  </div>
+
+  <table class="clin-table reveal reveal-delay-3">
+    <thead>
+      <tr>
+        <th style="width:90px">CLIN</th>
+        <th style="width:100px">Type</th>
+        <th>Description</th>
+        <th>Labor Categories</th>
+        <th style="width:110px">Structure</th>
+        <th style="width:100px">Payment Gate</th>
+      </tr>
+    </thead>
+    <tbody id="clinBody">
+      <tr data-clin-type="base">
+        <td><span class="clin-id">0001</span></td>
+        <td><span class="clin-badge base">Base</span></td>
+        <td>
+          <strong>CoP Enablement & Management</strong>
+          <div class="clin-desc">Community of Practice standup, governance, ongoing management, office hours, showcase sessions, adoption metrics and reporting.</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Community Manager</span><span>Practice Lead</span></div></td>
+        <td>T&M</td>
+        <td><span class="milestone-ref">M1, M4</span></td>
+      </tr>
+      <tr data-clin-type="base">
+        <td><span class="clin-id">0002</span></td>
+        <td><span class="clin-badge base">Base</span></td>
+        <td>
+          <strong>AoA & Migration Architecture</strong>
+          <div class="clin-desc">Platform evaluation support, MicroStrategy portfolio assessment, dashboard complexity classification, migration roadmap development.</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Solutions Architect</span><span>Migration Architect</span></div></td>
+        <td>T&M</td>
+        <td><span class="milestone-ref">M2, M3</span></td>
+      </tr>
+      <tr data-clin-type="base">
+        <td><span class="clin-id">0003</span></td>
+        <td><span class="clin-badge base">Base</span></td>
+        <td>
+          <strong>Training & Enablement</strong>
+          <div class="clin-desc">Curriculum development, self-paced learning paths, platform certification prep, workshop delivery, and training materials maintenance.</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Training Specialist</span><span>Viz Champion</span></div></td>
+        <td>T&M</td>
+        <td><span class="milestone-ref">M3, M5</span></td>
+      </tr>
+      <tr data-clin-type="optional">
+        <td><span class="clin-id">1001</span></td>
+        <td><span class="clin-badge optional">Optional</span></td>
+        <td>
+          <strong>Visualization Development — Standard</strong>
+          <div class="clin-desc">Hands-on dashboard migration and new development for standard-complexity visualizations. Exercised when departments request direct execution support.</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Viz Champion</span><span>BI Developer</span></div></td>
+        <td>T&M w/ Ceiling</td>
+        <td><span class="milestone-ref">M5, M6</span></td>
+      </tr>
+      <tr data-clin-type="optional">
+        <td><span class="clin-id">1002</span></td>
+        <td><span class="clin-badge optional">Optional</span></td>
+        <td>
+          <strong>Visualization Development — Advanced</strong>
+          <div class="clin-desc">Complex dashboard redesign, embedded analytics, data model refactoring, and advanced platform features (Fabric workspaces, Qlik Sense mashups, Tableau Prep flows).</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Sr. BI Developer</span><span>Solutions Architect</span></div></td>
+        <td>T&M w/ Ceiling</td>
+        <td><span class="milestone-ref">M6, M7</span></td>
+      </tr>
+      <tr data-clin-type="optional">
+        <td><span class="clin-id">1003</span></td>
+        <td><span class="clin-badge optional">Optional</span></td>
+        <td>
+          <strong>Data Governance & Stewardship</strong>
+          <div class="clin-desc">Data cataloging, lineage documentation, access governance, and stewardship framework — critical as the agency moves from a single-platform to a governed analytics environment.</div>
+        </td>
+        <td><div class="clin-labor-cats"><span>Data Governance Analyst</span><span>Solutions Architect</span></div></td>
+        <td>T&M w/ Ceiling</td>
+        <td><span class="milestone-ref">M7</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="clin-note reveal">
+    <strong>Milestone-Based Invoicing on a T&M Vehicle.</strong> Hours accrue under T&M, but invoicing is gated by milestone acceptance. The agency pays only when deliverables are inspected and approved — combining the flexibility of T&M with the accountability of outcomes-based contracting. Optional CLINs with ceilings mean scaling requires no contract modification: the CO exercises pre-negotiated capacity when the demand signal is clear.
+  </div>
+
+  <!-- ─── ESTIMATOR ─── -->
+  <div class="estimator reveal">
+    <div class="estimator-title">Hours Estimator</div>
+    <div class="estimator-subtitle">Adjust the sliders to model engagement sizing across base and optional CLINs.</div>
+    <div class="estimator-grid">
+      <div class="estimator-controls">
+        <div class="control-group">
+          <label>Engagement Duration (Months)</label>
+          <input type="range" min="12" max="36" value="24" id="durationSlider" oninput="updateEstimator()">
+          <div class="control-value" id="durationValue">24 months</div>
+        </div>
+        <div class="control-group">
+          <label>Number of Dashboards to Migrate</label>
+          <input type="range" min="500" max="3000" step="50" value="1800" id="dashboardSlider" oninput="updateEstimator()">
+          <div class="control-value" id="dashboardValue">1,800 dashboards (excl. retired)</div>
+        </div>
+        <div class="control-group">
+          <label>Optional CLINs Exercised</label>
+          <div class="toggle-group">
+            <button class="toggle-chip active" data-clin="1001" onclick="toggleOptionalClin(this)">1001 Standard</button>
+            <button class="toggle-chip" data-clin="1002" onclick="toggleOptionalClin(this)">1002 Advanced</button>
+            <button class="toggle-chip" data-clin="1003" onclick="toggleOptionalClin(this)">1003 Governance</button>
+          </div>
+        </div>
+      </div>
+      <div class="estimator-output">
+        <div class="estimate-row">
+          <span class="estimate-label">Base CLINs (0001–0003)</span>
+          <span class="estimate-value" id="baseHours">4,800 hrs</span>
+        </div>
+        <div class="estimate-row">
+          <span class="estimate-label">Optional — Standard (1001)</span>
+          <span class="estimate-value" id="opt1Hours">1,920 hrs</span>
+        </div>
+        <div class="estimate-row">
+          <span class="estimate-label">Optional — Advanced (1002)</span>
+          <span class="estimate-value" id="opt2Hours">—</span>
+        </div>
+        <div class="estimate-row">
+          <span class="estimate-label">Optional — Governance (1003)</span>
+          <span class="estimate-value" id="opt3Hours">—</span>
+        </div>
+        <div class="estimate-row total">
+          <span class="estimate-label">Estimated Total</span>
+          <span class="estimate-value" id="totalHours">6,720 hrs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ MILESTONE PAYMENT SCHEDULE ═══════════ -->
+<section id="milestones" style="background:var(--ink);color:#fff">
+  <div class="section-label reveal" style="color:var(--highlight)">Payment Structure</div>
+  <div class="section-title reveal reveal-delay-1" style="color:#fff">Milestone-Based Invoicing — Pay for Outcomes</div>
+  <p class="section-desc reveal reveal-delay-2" style="color:rgba(255,255,255,0.6)">Hours accrue under T&M, but payment is gated by milestone acceptance. Each milestone maps to inspectable deliverables — the agency pays when outcomes are verified, not when hours are logged. Click any milestone to expand.</p>
+
+  <!-- Milestone Visual Timeline -->
+  <div class="ms-timeline reveal reveal-delay-3">
+
+    <!-- Phase 1 Header -->
+    <div class="ms-phase-header" data-phase="1">
+      <div class="ms-phase-dot" style="background:var(--phase1)"></div>
+      <div class="ms-phase-label">Phase 1 — AoA & Standup</div>
+      <div class="ms-phase-months">Months 1–4</div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M1</div>
+        <div class="ms-card-title">CoP Infrastructure Established</div>
+        <div class="ms-card-timing">Month 2</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ CoP SharePoint site / portal operational</div>
+          <div class="ms-del-item">✓ Governance charter approved by stakeholders</div>
+          <div class="ms-del-item">✓ Community cadence established (office hours, showcases)</div>
+          <div class="ms-del-item">✓ Onboarding materials for first wave of members</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag">CLIN 0001</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M2</div>
+        <div class="ms-card-title">AoA Evaluation Delivered</div>
+        <div class="ms-card-timing">Month 3</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ Platform comparison report (Tableau, Qlik, Power BI/Fabric)</div>
+          <div class="ms-del-item">✓ Scoring matrix aligned to agency requirements</div>
+          <div class="ms-del-item">✓ TCO analysis across 3- and 5-year horizons</div>
+          <div class="ms-del-item">✓ Recommendation briefing delivered to leadership</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag">CLIN 0002</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M3</div>
+        <div class="ms-card-title">Portfolio Assessment & Migration Roadmap</div>
+        <div class="ms-card-timing">Month 4</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ Full MicroStrategy dashboard inventory cataloged (3,000 dashboards)</div>
+          <div class="ms-del-item">✓ Each dashboard classified: Simple / Medium / Complex / Retire</div>
+          <div class="ms-del-item">✓ Estimated ~1,000–1,200 dashboards recommended for retirement</div>
+          <div class="ms-del-item">✓ Prioritized migration roadmap with department sequencing</div>
+          <div class="ms-del-item">✓ Effort estimates per complexity tier for ~1,800 migration candidates</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag">CLIN 0002</span>
+          <span class="ms-clin-tag">CLIN 0003</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 Header -->
+    <div class="ms-phase-header" data-phase="2">
+      <div class="ms-phase-dot" style="background:var(--phase2)"></div>
+      <div class="ms-phase-label">Phase 2 — Pilot & Enablement</div>
+      <div class="ms-phase-months">Months 5–9</div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M4</div>
+        <div class="ms-card-title">CoP Adoption Threshold Achieved</div>
+        <div class="ms-card-timing">Month 6</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ ≥30 active CoP members across ≥3 departments</div>
+          <div class="ms-del-item">✓ ≥75% office hours attendance rate (rolling 4-week avg)</div>
+          <div class="ms-del-item">✓ ≥10 knowledge base articles contributed by agency staff</div>
+          <div class="ms-del-item">✓ First dashboard showcase completed</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag">CLIN 0001</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M5</div>
+        <div class="ms-card-title">Pilot Migration Complete</div>
+        <div class="ms-card-timing">Month 9</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ ≥150 dashboards migrated and accepted by business owners</div>
+          <div class="ms-del-item">✓ Self-service ratio ≥40% (agency staff–led migrations)</div>
+          <div class="ms-del-item">✓ Reference architecture & template library published</div>
+          <div class="ms-del-item">✓ Training curriculum delivered; first cohort certified</div>
+          <div class="ms-del-item">✓ Migration quality checklist and review process established</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag">CLIN 0003</span>
+          <span class="ms-clin-tag opt">CLIN 1001</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 Header -->
+    <div class="ms-phase-header" data-phase="3">
+      <div class="ms-phase-dot" style="background:var(--phase3)"></div>
+      <div class="ms-phase-label">Phase 3 — Scale & Decommission</div>
+      <div class="ms-phase-months">Months 10+</div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M6</div>
+        <div class="ms-card-title">Full-Scale Migration Checkpoint</div>
+        <div class="ms-card-timing">Month 14</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ ≥75% of migration portfolio completed (~1,350+ dashboards)</div>
+          <div class="ms-del-item">✓ Self-service ratio ≥60%</div>
+          <div class="ms-del-item">✓ All complex-tier dashboards redesigned and deployed</div>
+          <div class="ms-del-item">✓ No critical MicroStrategy dependencies remaining</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag opt">CLIN 1001</span>
+          <span class="ms-clin-tag opt">CLIN 1002</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-card" onclick="toggleMilestone(this)">
+      <div class="ms-card-header">
+        <div class="ms-card-id">M7</div>
+        <div class="ms-card-title">MicroStrategy Decommission & Transition</div>
+        <div class="ms-card-timing">Month 18</div>
+        <div class="ms-card-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="ms-card-body">
+        <div class="ms-deliverables">
+          <div class="ms-del-title">Acceptance Criteria</div>
+          <div class="ms-del-item">✓ 100% of 3,000 dashboards resolved: migrated, retired, or formally deferred</div>
+          <div class="ms-del-item">✓ MicroStrategy environment decommission-ready</div>
+          <div class="ms-del-item">✓ Data governance framework documented and adopted</div>
+          <div class="ms-del-item">✓ CoP transitioned to agency-sustained model (no contractor dependency)</div>
+          <div class="ms-del-item">✓ Lessons learned and final metrics report delivered</div>
+        </div>
+        <div class="ms-meta">
+          <span class="ms-clin-tag opt">CLIN 1002</span>
+          <span class="ms-clin-tag opt">CLIN 1003</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ms-summary reveal">
+    <div class="ms-summary-title">The Outcome Contract in Practice</div>
+    <div class="ms-summary-text">Seven milestones across three phases. Each milestone is inspectable, acceptance-gated, and maps directly to CLINs. The KO authorizes payment upon verified delivery — not upon hours logged. Optional CLINs activate based on demonstrated need surfaced through the CoP, and their milestones provide the same accountability structure. The result: T&M flexibility with FFP discipline.</div>
+  </div>
+</section>
+
+<!-- ═══════════ STAFFING TIMELINE ═══════════ -->
+<section id="staffing" style="background:#fafaf7">
+  <div class="section-label reveal">Staffing Plan</div>
+  <div class="section-title reveal reveal-delay-1">Labor Categories Against Time — Mapped to Milestones</div>
+  <p class="section-desc reveal reveal-delay-2">Not all roles start on Day 1. This timeline shows when each labor category ramps on, peaks, and tapers — with milestone payment gates overlaid. Milestones overlap intentionally; the CoP runs continuously while discrete deliverables complete in parallel.</p>
+
+  <div class="gantt-container reveal reveal-delay-3">
+    <div class="gantt">
+
+      <!-- Header: Months 1-18 -->
+      <div class="gantt-header">
+        <div class="gantt-header-label">Labor Category</div>
+        <div class="gantt-month">1</div><div class="gantt-month">2</div><div class="gantt-month">3</div>
+        <div class="gantt-month">4</div><div class="gantt-month">5</div><div class="gantt-month">6</div>
+        <div class="gantt-month">7</div><div class="gantt-month">8</div><div class="gantt-month">9</div>
+        <div class="gantt-month">10</div><div class="gantt-month">11</div><div class="gantt-month">12</div>
+        <div class="gantt-month">13</div><div class="gantt-month">14</div><div class="gantt-month">15</div>
+        <div class="gantt-month">16</div><div class="gantt-month">17</div><div class="gantt-month">18</div>
+      </div>
+
+      <!-- Phase overlay row -->
+      <div class="gantt-phase-row">
+        <div class="gantt-phase-label"><span style="font-size:0.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace">PHASES</span></div>
+        <!-- Phase 1: months 1-4 -->
+        <div class="gantt-phase-bar" style="grid-column:2/6"><div class="gantt-phase-fill" style="left:0;right:0;background:var(--phase1)"></div></div>
+        <!-- Phase 2: months 5-9 -->
+        <div class="gantt-phase-bar" style="grid-column:6/11"><div class="gantt-phase-fill" style="left:0;right:0;background:var(--phase2)"></div></div>
+        <!-- Phase 3: months 10-18 -->
+        <div class="gantt-phase-bar" style="grid-column:11/20"><div class="gantt-phase-fill" style="left:0;right:0;background:var(--phase3)"></div></div>
+      </div>
+
+      <!-- Milestone markers row -->
+      <div class="gantt-milestone-row">
+        <div class="gantt-milestone-label">Payment Gates</div>
+        <!-- M1=month2, M2=month3, M3=month4, M4=month6, M5=month9, M6=month14, M7=month18 -->
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M1</div></div></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M2</div></div></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M3</div></div></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M4</div></div></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M5</div></div></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M6</div></div></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"></div>
+        <div class="gantt-ms-cell"><div class="gantt-ms-marker"><div class="gantt-ms-diamond"></div><div class="gantt-ms-id">M7</div></div></div>
+      </div>
+
+      <!-- Solutions Architect / Practice Lead: Full span, fractional -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Solutions Architect</span>
+          <span class="gantt-labor-cat">Sr. Data Analytics Architect</span>
+          <span class="gantt-fte">Fractional — all phases</span>
+        </div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+      </div>
+
+      <!-- Community Manager: Full span -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Community Manager</span>
+          <span class="gantt-labor-cat">Knowledge Mgmt Specialist</span>
+          <span class="gantt-fte">1 FTE — all phases</span>
+        </div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+      </div>
+
+      <!-- Migration Architect: Months 1-9 heavy, 10-12 taper -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Migration Architect</span>
+          <span class="gantt-labor-cat">Sr. Enterprise BI Architect</span>
+          <span class="gantt-fte">1 FTE → taper after M5</span>
+        </div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+      </div>
+
+      <!-- Viz Champions: 1 in Phase 1, 2 in Phase 2, 3+ in Phase 3 -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Visualization Champions</span>
+          <span class="gantt-labor-cat">BI Developer / Data Viz Engineer</span>
+          <span class="gantt-fte">1 FTE → 2 → 3+ (ramp)</span>
+        </div>
+        <!-- Phase 1: 1 champion -->
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <!-- Phase 2: ramp to 2 -->
+        <div class="gantt-cell"><div class="gantt-bar highlight-bar"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar highlight-bar"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar highlight-bar"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar highlight-bar"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar highlight-bar"></div></div>
+        <!-- Phase 3: Optional CLIN 1001/1002 scale to 3+ -->
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+      </div>
+
+      <!-- Training Specialist: Starts month 3, runs through Phase 3 -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Training Specialist</span>
+          <span class="gantt-labor-cat">Technical Training Developer</span>
+          <span class="gantt-fte">1 FTE — starts Mo 3</span>
+        </div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"></div>
+        <div class="gantt-cell"><div class="gantt-bar ramp"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar base"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar taper"></div></div>
+      </div>
+
+      <!-- Sr. BI Developer (Optional 1002): Months 8+ -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Sr. BI Developer</span>
+          <span class="gantt-labor-cat">Sr. BI Developer (Complex)</span>
+          <span class="gantt-fte" style="color:var(--optional)">Optional CLIN 1002</span>
+        </div>
+        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+        <div class="gantt-cell"><div class="gantt-bar optional" style="opacity:0.3"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional" style="opacity:0.3"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+      </div>
+
+      <!-- Data Governance Analyst (Optional 1003): Months 10+ -->
+      <div class="gantt-row">
+        <div class="gantt-row-label">
+          <span class="gantt-role">Data Governance Analyst</span>
+          <span class="gantt-labor-cat">Data Governance Analyst</span>
+          <span class="gantt-fte" style="color:var(--optional)">Optional CLIN 1003</span>
+        </div>
+        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+        <div class="gantt-cell"><div class="gantt-bar optional" style="opacity:0.3"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+        <div class="gantt-cell"><div class="gantt-bar optional"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="gantt-legend reveal">
+    <div class="gantt-legend-item"><div class="gantt-legend-swatch" style="background:var(--accent);opacity:0.75"></div> Base CLIN — full engagement</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-swatch" style="background:var(--accent);opacity:0.35;background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.3) 2px,rgba(255,255,255,0.3) 4px)"></div> Ramp-up</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-swatch" style="background:var(--highlight);opacity:0.7"></div> Scaling (Phase 2 growth)</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-swatch" style="background:var(--optional);opacity:0.6"></div> Optional CLIN — exercised on demand</div>
+    <div class="gantt-legend-item"><div class="gantt-legend-swatch" style="background:var(--accent);opacity:0.25"></div> Taper / transition</div>
+    <div class="gantt-legend-item"><div style="width:10px;height:10px;background:var(--highlight);transform:rotate(45deg);border-radius:1px"></div> Milestone payment gate</div>
+  </div>
+
+  <div class="clin-note reveal" style="margin-top:24px">
+    <strong>Overlapping milestones are by design.</strong> The CoP (M1, M4) operates continuously while the AoA (M2) and portfolio assessment (M3) complete in parallel. Training (M3, M5) overlaps with pilot migrations. The KO never pays for idle capacity — each labor category maps to active deliverables across concurrent workstreams, and payment gates verify outcomes regardless of which milestones run in parallel.
+  </div>
+</section>
+
+<!-- ═══════════ METRICS ═══════════ -->
+<section id="metrics">
+  <div class="section-label reveal">Success Metrics</div>
+  <div class="section-title reveal reveal-delay-1">Measuring What Matters</div>
+  <p class="section-desc reveal reveal-delay-2">Every engagement is tracked against adoption, efficiency, cost, and timeline KPIs — reported monthly through the CoP governance structure.</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card reveal reveal-delay-1">
+      <div class="metric-icon">📊</div>
+      <div class="metric-label">Adoption</div>
+      <div class="metric-value">CoP Participation</div>
+      <div class="metric-desc">Active members, office hours attendance, showcase contributions, knowledge base articles created</div>
+    </div>
+    <div class="metric-card reveal reveal-delay-2">
+      <div class="metric-icon">⚡</div>
+      <div class="metric-label">Efficiency</div>
+      <div class="metric-value">Self-Service Ratio</div>
+      <div class="metric-desc">Dashboards migrated by agency staff vs. contractor-led — the core measure of enablement success</div>
+    </div>
+    <div class="metric-card reveal reveal-delay-3">
+      <div class="metric-icon">💰</div>
+      <div class="metric-label">Cost</div>
+      <div class="metric-value">Cost per Dashboard</div>
+      <div class="metric-desc">Blended cost per dashboard migrated, benchmarked against traditional contractor migration models</div>
+    </div>
+    <div class="metric-card reveal reveal-delay-4">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-label">Timeline</div>
+      <div class="metric-value">Decommission Date</div>
+      <div class="metric-desc">MicroStrategy license expiration readiness — tracking toward full disinvestment with zero business disruption</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DIFFERENTIATORS ═══════════ -->
+<section class="diff-section" id="differentiators">
+  <div class="section-label reveal">Why Us</div>
+  <div class="section-title reveal reveal-delay-1" style="color:#fff">Uncommon Advantages</div>
+
+  <div class="diff-grid">
+    <div class="diff-item reveal reveal-delay-1">
+      <h3>Tri-Platform Fluency</h3>
+      <p>Deep, hands-on experience across all three platforms under consideration — Tableau, Qlik, and Power BI / Fabric. We advise the AoA without vendor bias and execute on whichever platform wins, with no ramp-up delay.</p>
+    </div>
+    <div class="diff-item reveal reveal-delay-2">
+      <h3>The MigrateIQ Model is Proven</h3>
+      <p>Communities of Practice accelerate adoption because people learn from peers, not slide decks. We bring the structure, governance, and facilitation expertise to make the CoP self-sustaining beyond our engagement.</p>
+    </div>
+    <div class="diff-item reveal reveal-delay-3">
+      <h3>Built-In Demand Signal</h3>
+      <p>The CoP creates a natural demand signal — we see which teams are struggling, which dashboards are complex, and where executive interest is highest. Optional CLINs activate based on real need, not guesswork.</p>
+    </div>
+    <div class="diff-item reveal reveal-delay-4">
+      <h3>Zero Lock-In by Design</h3>
+      <p>Every enablement activity — training materials, templates, governance frameworks, knowledge base — transfers to the agency. The CoP is designed to outlive our contract. We succeed when you don't need us anymore.</p>
+    </div>
+  </div>
+
+  <div class="platform-tags reveal">
+    <div class="platform-tag">Tableau</div>
+    <div class="platform-tag">Qlik Sense</div>
+    <div class="platform-tag">Power BI / Fabric</div>
+    <div class="platform-tag">MicroStrategy (Legacy)</div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA ═══════════ -->
+<section class="cta-section">
+  <div class="section-title reveal">Ready to Migrate Smarter?</div>
+  <p class="reveal reveal-delay-1">Let's discuss how MigrateIQ can accelerate your MicroStrategy disinvestment while building lasting analytical capability across the agency.</p>
+  <div class="cta-tagline reveal reveal-delay-2">Enablement First. Execution When You Need It.</div>
+</section>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  MigrateIQ — Shared Platform Configuration
+//
+//  Change the active preset below to generate all materials
+//  for a different legacy platform. All HTML files that include
+//  this script will adapt automatically on page load.
+//
+//  USAGE: Change ACTIVE_PLATFORM, save, refresh any material.
+// ═══════════════════════════════════════════════════════════════
+
+const PLATFORM_PRESETS = {
+
+  microstrategy: {
+    legacy: "MicroStrategy",
+    legacyFull: "MicroStrategy Analytics",
+    legacyShort: "MicroStrategy",
+    reason: "platform disinvestment and license cost reduction",
+    portfolio: "3,000",
+    assets: "dashboards",
+    asset: "dashboard",
+    complex: "MicroStrategy dossiers, Visual Insight dashboards, distribution services, and Intelligent Cube dependencies",
+    targets: "Tableau, Qlik Sense, Power BI/Fabric",
+    agency: "federal agencies",
+    targetTags: ["Tableau", "Qlik Sense", "Power BI / Fabric"],
+  },
+
+  cognos: {
+    legacy: "Cognos",
+    legacyFull: "IBM Cognos Analytics",
+    legacyShort: "Cognos",
+    reason: "IBM license consolidation and platform modernization",
+    portfolio: "2,500",
+    assets: "reports",
+    asset: "report",
+    complex: "Cognos Framework Manager models, Report Studio burst reports, Analysis Studio cubes, and TM1 integrations",
+    targets: "Tableau, Power BI/Fabric, Qlik Sense",
+    agency: "federal agencies",
+    targetTags: ["Tableau", "Power BI / Fabric", "Qlik Sense"],
+  },
+
+  bobj: {
+    legacy: "BusinessObjects",
+    legacyFull: "SAP BusinessObjects BI",
+    legacyShort: "BOBJ",
+    reason: "SAP BI platform sunset and enterprise modernization",
+    portfolio: "4,000",
+    assets: "reports",
+    asset: "report",
+    complex: "Web Intelligence documents, Crystal Reports, universe semantic layers, and scheduled publication jobs",
+    targets: "Power BI/Fabric, Tableau, Qlik Sense",
+    agency: "federal agencies and defense organizations",
+    targetTags: ["Power BI / Fabric", "Tableau", "Qlik Sense"],
+  },
+
+  obiee: {
+    legacy: "OBIEE",
+    legacyFull: "Oracle BI Enterprise Edition",
+    legacyShort: "OBIEE",
+    reason: "Oracle license rationalization and cloud migration",
+    portfolio: "1,800",
+    assets: "analyses",
+    asset: "analysis",
+    complex: "OBIEE RPD metadata models, BI Publisher templates, Essbase cube dependencies, and Oracle Data Visualization projects",
+    targets: "Power BI/Fabric, Tableau, Qlik Sense",
+    agency: "federal agencies",
+    targetTags: ["Power BI / Fabric", "Tableau", "Qlik Sense"],
+  },
+
+};
+
+// ═══════════ ACTIVE PRESET ═══════════
+// Change this line to switch platforms across ALL materials:
+const ACTIVE_PLATFORM = "microstrategy";
+// ═══════════════════════════════════════
+
+const P = PLATFORM_PRESETS[ACTIVE_PLATFORM];
+
+// Template rendering utility — call after DOM is ready
+function migrateIQ_renderTemplates() {
+  document.querySelectorAll('[data-tpl]').forEach(el => {
+    const template = el.getAttribute('data-tpl');
+    el.innerHTML = template
+      .replace(/\{legacy\}/g, P.legacy)
+      .replace(/\{legacyFull\}/g, P.legacyFull)
+      .replace(/\{legacyShort\}/g, P.legacyShort)
+      .replace(/\{reason\}/g, P.reason)
+      .replace(/\{portfolio\}/g, P.portfolio)
+      .replace(/\{assets\}/g, P.assets)
+      .replace(/\{asset\}/g, P.asset)
+      .replace(/\{complex\}/g, P.complex)
+      .replace(/\{targets\}/g, P.targets)
+      .replace(/\{agency\}/g, P.agency);
+  });
+  // Also update <title>
+  if (document.title.includes('{legacy}') || document.title.includes('MicroStrategy')) {
+    document.title = document.title.replace(/MicroStrategy|Cognos|BusinessObjects|OBIEE|\{legacy\}/g, P.legacy);
+  }
+}
+</script>
+<script>
+  // ─── STICKY NAV ───
+  const nav = document.getElementById('mainNav');
+  let lastScroll = 0;
+  const heroHeight = document.querySelector('.hero').offsetHeight;
+
+  window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    if (st > heroHeight * 0.7) {
+      nav.classList.add('visible');
+    } else {
+      nav.classList.remove('visible');
+    }
+    lastScroll = st;
+
+    // Update active nav link
+    const sections = document.querySelectorAll('section[id]');
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 100;
+      if (st >= top) current = section.id;
+    });
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.toggle('active', link.dataset.section === current);
+    });
+  });
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(link.dataset.section);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ─── SCROLL REVEAL ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ─── MILESTONE ACCORDION ───
+  function toggleMilestone(card) {
+    const wasActive = card.classList.contains('active');
+    // Don't close all — allow multiple open
+    card.classList.toggle('active');
+  }
+
+  // ─── PHASE ACCORDION ───
+  function togglePhase(header) {
+    const phase = header.closest('.phase');
+    const wasActive = phase.classList.contains('active');
+
+    // Close all
+    document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+
+    // Toggle clicked
+    if (!wasActive) phase.classList.add('active');
+  }
+
+  // ─── CLIN FILTER ───
+  function filterClins(type) {
+    document.querySelectorAll('.clin-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.querySelectorAll('#clinBody tr').forEach(row => {
+      const rowType = row.dataset.clinType;
+      if (type === 'all' || rowType === type) {
+        row.classList.remove('hidden-row');
+      } else {
+        row.classList.add('hidden-row');
+      }
+    });
+  }
+
+  // ─── OPTIONAL CLIN TOGGLES ───
+  const activatedClins = { '1001': true, '1002': false, '1003': false };
+
+  function toggleOptionalClin(btn) {
+    const clin = btn.dataset.clin;
+    activatedClins[clin] = !activatedClins[clin];
+    btn.classList.toggle('active');
+    updateEstimator();
+  }
+
+  // ─── HOURS ESTIMATOR ───
+  function updateEstimator() {
+    const months = parseInt(document.getElementById('durationSlider').value);
+    const dashboards = parseInt(document.getElementById('dashboardSlider').value);
+
+    document.getElementById('durationValue').textContent = months + ' months';
+    document.getElementById('dashboardValue').textContent = dashboards.toLocaleString() + ' dashboards (excl. retired)';
+
+    // Base: ~3.5 FTE equivalent for CoP management, architecture, training
+    const baseFTE = 3.5;
+    const baseHrs = Math.round(baseFTE * months * (160 * 0.85)); // 85% utilization
+
+    // Optional 1001: ~16 hrs per simple dashboard, ~32 per medium
+    const simpleDashboards = Math.round(dashboards * 0.55); // 55% simple
+    const mediumDashboards = Math.round(dashboards * 0.35); // 35% medium
+    const opt1Hrs = activatedClins['1001'] ? (simpleDashboards * 16) + (mediumDashboards * 32) : 0;
+
+    // Optional 1002: ~56 hrs per complex dashboard (10% of migrated)
+    const complexDashboards = Math.round(dashboards * 0.10);
+    const opt2Hrs = activatedClins['1002'] ? complexDashboards * 56 : 0;
+
+    // Optional 1003: governance scales with duration and portfolio breadth
+    const opt3Hrs = activatedClins['1003'] ? Math.round(months * 160 * 0.6) : 0;
+
+    const total = baseHrs + opt1Hrs + opt2Hrs + opt3Hrs;
+
+    document.getElementById('baseHours').textContent = baseHrs.toLocaleString() + ' hrs';
+    document.getElementById('opt1Hours').textContent = opt1Hrs > 0 ? opt1Hrs.toLocaleString() + ' hrs' : '—';
+    document.getElementById('opt2Hours').textContent = opt2Hrs > 0 ? opt2Hrs.toLocaleString() + ' hrs' : '—';
+    document.getElementById('opt3Hours').textContent = opt3Hrs > 0 ? opt3Hrs.toLocaleString() + ' hrs' : '—';
+    document.getElementById('totalHours').textContent = total.toLocaleString() + ' hrs';
+  }
+
+  // Initialize estimator
+  updateEstimator();
+
+  // ═══════════ PLATFORM LIVE SWITCHER ═══════════
+
+  // PLATFORM_PRESETS loaded from /migrateiq-config.js
+
+  let currentPlatform = "microstrategy";
+
+  // On first load, snapshot all text nodes that contain platform-specific content
+  const ORIGINAL_TEXTS = new Map();
+  const PLATFORM_MARKERS = ["MicroStrategy","Tableau, Qlik","Tableau, Qlik Sense","Power BI/Fabric","Power BI / Fabric","dashboards","dashboard","Fabric workspaces, Qlik Sense mashups, Tableau Prep flows"];
+
+  function snapshotTextNodes() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (PLATFORM_MARKERS.some(m => node.nodeValue.includes(m))) {
+        ORIGINAL_TEXTS.set(node, node.nodeValue);
+      }
+    }
+  }
+
+  function applyPlatform(key) {
+    const PLT = PLATFORM_PRESETS[key];
+    currentPlatform = key;
+
+    // Flash animation
+    document.body.classList.add('platform-transitioning');
+
+    // Restore originals then apply new platform
+    ORIGINAL_TEXTS.forEach((original, node) => {
+      try {
+        let text = original;
+        // Order matters: replace longer strings first
+        text = text.replace(/MicroStrategy Analytics/g, PLT.legacyFull);
+        text = text.replace(/MicroStrategy/g, PLT.legacy);
+        text = text.replace(/Tableau, Qlik Sense, Power BI\/Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, and Power BI\/Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, and Power BI \/ Fabric/g, PLT.targets);
+        text = text.replace(/Tableau, Qlik, Power BI \/ Fabric/g, PLT.targets);
+        text = text.replace(/Fabric workspaces, Qlik Sense mashups, Tableau Prep flows/g, "advanced platform-specific features");
+        // Asset terms — careful not to break words like "Dashboard Portfolio" label
+        // Only replace lowercase "dashboards"/"dashboard" in flowing text
+        text = text.replace(/\bdashboards\b/g, PLT.assets);
+        text = text.replace(/\bdashboard\b/g, PLT.asset);
+        text = text.replace(/\bDashboard Portfolio\b/g, PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1) + ' Portfolio');
+        text = text.replace(/\bDashboard Migrated\b/g, PLT.assets.charAt(0).toUpperCase() + PLT.assets.slice(1) + ' Migrated');
+        text = text.replace(/per Dashboard Migrated\b/gi, 'per ' + PLT.asset.charAt(0).toUpperCase() + PLT.asset.slice(1) + ' Migrated');
+        node.nodeValue = text;
+      } catch(e) { /* node may have been removed by DOM changes */ }
+    });
+
+    // Update platform tags in footer
+    const platformTags = document.querySelectorAll('.platform-tag');
+    if (platformTags.length >= 4) {
+      platformTags[0].textContent = PLT.legacy + " (Legacy)";
+      platformTags[1].textContent = PLT.targetTags[0];
+      platformTags[2].textContent = PLT.targetTags[1];
+      platformTags[3].textContent = PLT.targetTags[2];
+    }
+
+    // Update hero stat value for portfolio size
+    const heroStatValues = document.querySelectorAll('.hero-stat-value');
+    if (heroStatValues.length > 0) {
+      heroStatValues[0].textContent = PLT.portfolio;
+    }
+
+    // Update switcher button states
+    document.querySelectorAll('.platform-switch-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.platform === key);
+    });
+
+    // Update title
+    document.title = "MigrateIQ \u2014 " + PLT.legacy + " Migration Strategy";
+
+    // Flash affected elements
+    setTimeout(() => {
+      document.body.classList.remove('platform-transitioning');
+      // Add flash to visible sections
+      document.querySelectorAll('.hero, .problem-section, .clin-section, [id="milestones"], [id="metrics"], .cta-section').forEach(el => {
+        el.classList.add('platform-flash');
+        setTimeout(() => el.classList.remove('platform-flash'), 500);
+      });
+    }, 50);
+  }
+
+  // Initialize: snapshot originals, then bind switcher buttons
+  snapshotTextNodes();
+
+  document.querySelectorAll('.platform-switch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.platform !== currentPlatform) {
+        applyPlatform(btn.dataset.platform);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MigrateIQ — Migration Intelligence Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232d5a7b'/><text x='50' y='65' font-family='Arial,sans-serif' font-size='38' font-weight='bold' fill='white' text-anchor='middle'>MQ</text></svg>" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --paper: #f7f5f0;
+  --accent: #2d5a7b;
+  --accent-light: #3a7ca5;
+  --highlight: #d4a843;
+  --muted: #6b7280;
+  --border: #d1cdc4;
+  --card-bg: #ffffff;
+  --success: #2d6a4f;
+  --optional: #7c3aed;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+a { text-decoration: none; color: inherit; }
+
+/* ─── HERO ─── */
+.hero {
+  background: linear-gradient(165deg, #1a1a2e 0%, #2d5a7b 55%, #3a7ca5 100%);
+  color: #fff;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-glow {
+  position:absolute; top:-200px; right:-200px; width:600px; height:600px; border-radius:50%;
+  background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-inner { position:relative; z-index:2; max-width:900px; margin:0 auto; padding:64px 48px; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px; padding:5px 16px;
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+  border-radius:100px; font-size:0.7rem; font-weight:600; letter-spacing:0.08em;
+  text-transform:uppercase; margin-bottom:32px;
+}
+.hero-badge::before { content:''; width:6px; height:6px; background:var(--highlight); border-radius:50%; }
+.hero h1 { font-family:'DM Serif Display',serif; font-size:clamp(2.2rem,5vw,3.4rem); font-weight:400; line-height:1.1; }
+.hero h1 em { color:var(--highlight); font-style:italic; }
+.hero-sub { margin-top:8px; font-size:1rem; font-family:'JetBrains Mono',monospace; opacity:0.5; letter-spacing:0.12em; text-transform:uppercase; }
+.hero-desc { margin-top:20px; font-size:1.05rem; max-width:600px; opacity:0.85; line-height:1.7; }
+.hero-stats { display:flex; flex-wrap:wrap; gap:40px; margin-top:40px; }
+.hero-stat-value { font-family:'DM Serif Display',serif; font-size:1.8rem; color:var(--highlight); }
+.hero-stat-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; opacity:0.6; margin-top:4px; }
+.hero-line { position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); }
+
+/* ─── TOOL CARDS ─── */
+.cards-section { max-width:900px; margin:-40px auto 0; padding:0 48px; position:relative; z-index:10; }
+.cards-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+@media(min-width:800px) { .cards-grid { grid-template-columns:repeat(4,1fr); } }
+.tool-card {
+  display:block; background:var(--card-bg); border:1px solid var(--border);
+  border-radius:10px; padding:24px; transition:all 0.25s;
+  box-shadow:0 4px 24px rgba(0,0,0,0.06);
+}
+.tool-card:hover { transform:translateY(-3px); }
+.tool-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:#fff; margin-bottom:12px; }
+.tool-tag { font-family:'JetBrains Mono',monospace; font-size:0.65rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:10px; }
+.tool-card h3 { font-family:'DM Serif Display',serif; font-size:1rem; margin-bottom:6px; }
+.tool-card p { font-size:0.8rem; color:var(--muted); line-height:1.5; margin-bottom:12px; }
+.tool-link { font-size:0.82rem; font-weight:500; display:inline-flex; align-items:center; gap:6px; }
+.tool-link::after { content:'\2192'; transition:margin-left 0.2s; }
+.tool-card:hover .tool-link::after { margin-left:6px; }
+
+/* ─── PDF ROW ─── */
+.pdf-section { max-width:900px; margin:16px auto 0; padding:0 48px; }
+.pdf-row {
+  display:flex; align-items:center; gap:16px; background:var(--card-bg);
+  border:1px solid var(--border); border-radius:10px; padding:16px 20px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.04);
+}
+.pdf-icon { width:40px; height:40px; border-radius:8px; background:var(--ink); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pdf-icon svg { width:20px; height:20px; stroke:var(--highlight); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.pdf-info { flex:1; }
+.pdf-info h3 { font-family:'DM Serif Display',serif; font-size:0.88rem; }
+.pdf-info p { font-size:0.75rem; color:var(--muted); margin-top:2px; }
+.pdf-links { display:flex; gap:8px; flex-wrap:wrap; }
+.pdf-btn {
+  display:inline-block; padding:6px 14px; border-radius:6px;
+  font-size:0.72rem; font-weight:600; font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.04em; transition:0.2s;
+  background:var(--accent); color:#fff;
+}
+.pdf-btn:hover { opacity:0.85; }
+.pdf-btn.secondary { background:transparent; border:1px solid var(--border); color:var(--ink); }
+.pdf-btn.secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+/* ─── PILLARS ─── */
+.pillars-section { max-width:900px; margin:0 auto; padding:64px 48px; }
+.section-tag { font-size:0.65rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+.pillars-section h2 { font-family:'DM Serif Display',serif; font-size:1.8rem; margin-bottom:8px; }
+.pillars-section > p { color:var(--muted); max-width:520px; margin-bottom:36px; }
+.pillars-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.pillar-card { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:20px; display:flex; gap:14px; transition:0.2s; }
+.pillar-card:hover { transform:translateY(-2px); }
+.pillar-icon { width:36px; height:36px; border-radius:8px; background:rgba(45,90,123,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
+.pillar-card h3 { font-size:0.88rem; font-weight:600; margin-bottom:4px; }
+.pillar-card p { font-size:0.82rem; color:var(--muted); line-height:1.55; }
+
+/* ─── PHASES ─── */
+.phases-section { background:var(--ink); color:#fff; padding:64px 0; }
+.phases-inner { max-width:900px; margin:0 auto; padding:0 48px; }
+.phases-section h2 { font-family:'DM Serif Display',serif; font-size:1.8rem; margin-bottom:36px; }
+.phases-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.phase-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:20px; }
+.phase-badge { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.phase-dot { width:8px; height:8px; border-radius:50%; }
+.phase-label { font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; }
+.phase-card h3 { font-family:'DM Serif Display',serif; font-size:0.95rem; margin-bottom:10px; }
+.phase-card li { font-size:0.78rem; opacity:0.6; margin-bottom:6px; list-style:none; }
+.phase-card li::before { content:'\2192 '; }
+
+/* ─── CTA ─── */
+.cta-section { text-align:center; padding:56px 48px; background:linear-gradient(180deg,var(--paper) 0%,#eeebe4 100%); }
+.cta-section h2 { font-family:'DM Serif Display',serif; font-size:1.8rem; margin-bottom:12px; }
+.cta-section p { max-width:480px; margin:0 auto 24px; color:var(--muted); font-size:0.88rem; line-height:1.6; }
+.cta-tags { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--accent); }
+.cta-tags span.sep { opacity:0.3; }
+
+@media(max-width:700px) {
+  .hero-inner, .cards-section, .pdf-section, .pillars-section, .phases-inner, .cta-section { padding-left:20px; padding-right:20px; }
+  .cards-grid, .pillars-grid { grid-template-columns:1fr; }
+  .phases-grid { grid-template-columns:1fr 1fr; }
+  .hero-stats { gap:20px; }
+  .pdf-row { flex-direction:column; align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── HERO ─── -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">Tradewinds Solutions Marketplace</div>
+    <h1>Migrate<em>IQ</em></h1>
+    <div class="hero-sub">Migration Intelligence Platform</div>
+    <p class="hero-desc">
+      Structured migration solution for MicroStrategy Analytics to Tableau, Qlik Sense, Power BI/Fabric &mdash;
+      assessment, planning, community-led enablement, and on-demand execution
+      under a single marketplace offering.
+    </p>
+    <div class="hero-stats">
+      <div><div class="hero-stat-value">3,000</div><div class="hero-stat-label">Dashboard Portfolio</div></div>
+      <div><div class="hero-stat-value">40&ndash;60%</div><div class="hero-stat-label">Cost Reduction</div></div>
+      <div><div class="hero-stat-value">4 Phases</div><div class="hero-stat-label">Assess &middot; Plan &middot; Enable &middot; Execute</div></div>
+      <div><div class="hero-stat-value">7</div><div class="hero-stat-label">Milestone Gates</div></div>
+    </div>
+  </div>
+  <div class="hero-line"></div>
+</header>
+
+<!-- ─── TOOL CARDS ─── -->
+<section class="cards-section">
+  <div class="cards-grid">
+    <a href="./cop-pitch-interactive.html" class="tool-card" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div class="tool-icon" style="background:var(--accent)">&#127979;</div>
+      <div class="tool-tag" style="color:var(--accent)">Solution Brief</div>
+      <h3>Strategy Brief</h3>
+      <p>Full interactive solution overview &mdash; the challenge, phased approach, team, CLINs, milestones, staffing timeline, and differentiators.</p>
+      <span class="tool-link" style="color:var(--accent)">Open</span>
+    </a>
+    <a href="./cop-in-a-box-demo.html" class="tool-card" onmouseenter="this.style.borderColor='var(--success)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div class="tool-icon" style="background:var(--success)">&#128187;</div>
+      <div class="tool-tag" style="color:var(--success)">Portal Prototype</div>
+      <h3>Solution Portal</h3>
+      <p>Live prototype of the MigrateIQ portal &mdash; migration tracker, community activity, leaderboard, and events calendar.</p>
+      <span class="tool-link" style="color:var(--success)">Open</span>
+    </a>
+    <a href="./portfolio-scenario-planner.html" class="tool-card" onmouseenter="this.style.borderColor='var(--highlight)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div class="tool-icon" style="background:var(--highlight)">&#9881;&#65039;</div>
+      <div class="tool-tag" style="color:var(--highlight)">Interactive Tool</div>
+      <h3>Scenario Planner</h3>
+      <p>Model different migration scenarios &mdash; adjust portfolio disposition, migration methods, and see real-time cost &amp; effort comparisons.</p>
+      <span class="tool-link" style="color:var(--highlight)">Open</span>
+    </a>
+    <a href="./migrateiq-configurator.html" class="tool-card" onmouseenter="this.style.borderColor='var(--optional)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div class="tool-icon" style="background:var(--optional)">&#9881;</div>
+      <div class="tool-tag" style="color:var(--optional)">Configuration</div>
+      <h3>Platform Configurator</h3>
+      <p>See how all materials adapt to any legacy platform &mdash; MicroStrategy, Cognos, BusinessObjects, or OBIEE.</p>
+      <span class="tool-link" style="color:var(--optional)">Open</span>
+    </a>
+  </div>
+</section>
+
+<!-- ─── PDF DOWNLOAD ─── -->
+<section class="pdf-section">
+  <div class="pdf-row">
+    <div class="pdf-icon">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    </div>
+    <div class="pdf-info">
+      <h3>One-Pager &mdash; MigrateIQ Solution Brief</h3>
+      <p>PDF leave-behind &mdash; milestones, CLINs, team, and phased approach. Print-ready.</p>
+    </div>
+    <div class="pdf-links">
+      <a href="./migrateiq-onepager-microstrategy.pdf" target="_blank" class="pdf-btn">MicroStrategy</a>
+      <a href="./migrateiq-onepager-cognos.pdf" target="_blank" class="pdf-btn secondary">Cognos</a>
+      <a href="./migrateiq-onepager-bobj.pdf" target="_blank" class="pdf-btn secondary">BusinessObjects</a>
+      <a href="./migrateiq-onepager-obiee.pdf" target="_blank" class="pdf-btn secondary">OBIEE</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHY MIGRATEIQ ─── -->
+<section class="pillars-section">
+  <div class="section-tag">The Platform</div>
+  <h2>Why MigrateIQ?</h2>
+  <p>MigrateIQ combines structured assessment, community-driven enablement, and on-demand execution into a single marketplace offering &mdash; built for any agency facing legacy BI platform disinvestment.</p>
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-icon">&#128203;</div>
+      <div><h3>Structured Assessment</h3><p>Full portfolio inventory, complexity classification, and prioritized migration roadmap &mdash; before a single asset is touched.</p></div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon">&#128101;</div>
+      <div><h3>Community-Led Enablement</h3><p>Built-in CoP drives organic adoption. Office hours, showcases, and paired development build capability that outlasts the contract.</p></div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon">&#127919;</div>
+      <div><h3>Milestone-Gated Delivery</h3><p>T&amp;M flexibility with FFP accountability. Hours accrue, but invoicing is gated by inspectable milestone acceptance.</p></div>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-icon">&#128737;</div>
+      <div><h3>Zero Lock-In</h3><p>Every deliverable transfers to the agency. The solution is designed to make itself unnecessary.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PHASED APPROACH ─── -->
+<section class="phases-section">
+  <div class="phases-inner">
+    <div class="section-tag" style="color:var(--highlight)">Solution Delivery</div>
+    <h2>Four Phases, One Solution</h2>
+    <div class="phases-grid">
+      <div class="phase-card">
+        <div class="phase-badge"><div class="phase-dot" style="background:var(--accent)"></div><span class="phase-label">Phase 1 &middot; Mo 1&ndash;2</span></div>
+        <h3 style="color:var(--accent)">Assess</h3>
+        <ul><li>Evaluate Tableau, Qlik, Power BI/Fabric</li><li>Full MicroStrategy portfolio inventory</li><li>Complexity classification</li></ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-badge"><div class="phase-dot" style="background:var(--accent-light)"></div><span class="phase-label">Phase 2 &middot; Mo 3&ndash;4</span></div>
+        <h3 style="color:var(--accent-light)">Plan</h3>
+        <ul><li>Prioritized migration roadmap</li><li>CoP infrastructure &amp; governance</li><li>Training curriculum development</li></ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-badge"><div class="phase-dot" style="background:var(--highlight)"></div><span class="phase-label">Phase 3 &middot; Mo 5&ndash;9</span></div>
+        <h3 style="color:var(--highlight)">Enable</h3>
+        <ul><li>Office hours, showcases, paired dev</li><li>First 150+ dashboards migrated</li><li>Self-service ratio target: &ge;40%</li></ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-badge"><div class="phase-dot" style="background:var(--success)"></div><span class="phase-label">Phase 4 &middot; Mo 10+</span></div>
+        <h3 style="color:var(--success)">Execute</h3>
+        <ul><li>Optional CLINs activate on demand</li><li>Full-scale migration to completion</li><li>CoP transitions to agency-sustained</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="cta-section">
+  <h2>Ready for Tradewinds?</h2>
+  <p>MigrateIQ is a structured migration solution &mdash; assessment, enablement, and execution under a single marketplace offering with milestone accountability.</p>
+  <div class="cta-tags">
+    <span>T&amp;M</span><span class="sep">&middot;</span>
+    <span>Milestone Invoicing</span><span class="sep">&middot;</span>
+    <span>Optional CLINs</span><span class="sep">&middot;</span>
+    <span>Tradewinds Ready</span>
+  </div>
+</section>
+
+</body>
+</html>
